@@ -3,6 +3,8 @@ from fastapi import FastAPI, HTTPException, BackgroundTasks, WebSocket, WebSocke
 from fastapi import Body
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from typing import Dict, List, Optional, Any
 import asyncio
 import json
@@ -864,6 +866,32 @@ async def clear_expired_messages(max_age_hours: int = 24):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to clear expired messages: {str(e)}")
 
+
+# Serve static files for production
+import os
+from pathlib import Path
+
+# Get the project root directory
+project_root = Path(__file__).parent.parent.parent
+frontend_dist = project_root / "frontend" / "dist"
+
+# Mount static files if they exist (for production builds)
+if frontend_dist.exists():
+    app.mount("/static", StaticFiles(directory=str(frontend_dist / "assets")), name="static")
+    
+    # Serve the React app for all non-API routes
+    @app.get("/{full_path:path}")
+    async def serve_react_app(full_path: str):
+        # Don't serve React app for API routes
+        if full_path.startswith("api/") or full_path.startswith("docs") or full_path.startswith("redoc"):
+            raise HTTPException(status_code=404, detail="Not found")
+        
+        # Serve index.html for all other routes (SPA routing)
+        index_file = frontend_dist / "index.html"
+        if index_file.exists():
+            return FileResponse(str(index_file))
+        else:
+            raise HTTPException(status_code=404, detail="Frontend not built")
 
 if __name__ == "__main__":
     import uvicorn
