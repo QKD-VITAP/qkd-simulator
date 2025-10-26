@@ -5,9 +5,12 @@ import styled, { ThemeProvider, createGlobalStyle } from 'styled-components';
 
 import Sidebar from './components/Sidebar';
 import Header from './components/Header';
+import ProtectedRoute from './components/ProtectedRoute';
 import { WebSocketProvider } from './contexts/WebSocketContext';
 import { ToastProvider } from './contexts/ToastContext';
+import { AuthProvider } from './contexts/AuthContext';
 
+import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Simulation from './pages/Simulation';
 import AttackAnalysis from './pages/AttackAnalysis';
@@ -140,12 +143,37 @@ function AppContent() {
         <Header currentPage={getPageTitle(location.pathname)} />
         <ContentArea>
           <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/simulation" element={<Simulation />} />
-            <Route path="/attack-analysis" element={<AttackAnalysis />} />
-            <Route path="/results" element={<Results />} />
-            <Route path="/advanced-features" element={<AdvancedFeatures />} />
-            <Route path="/secure-messaging" element={<SecureMessaging />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/" element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/simulation" element={
+              <ProtectedRoute>
+                <Simulation />
+              </ProtectedRoute>
+            } />
+            <Route path="/attack-analysis" element={
+              <ProtectedRoute>
+                <AttackAnalysis />
+              </ProtectedRoute>
+            } />
+            <Route path="/results" element={
+              <ProtectedRoute>
+                <Results />
+              </ProtectedRoute>
+            } />
+            <Route path="/advanced-features" element={
+              <ProtectedRoute>
+                <AdvancedFeatures />
+              </ProtectedRoute>
+            } />
+            <Route path="/secure-messaging" element={
+              <ProtectedRoute>
+                <SecureMessaging />
+              </ProtectedRoute>
+            } />
           </Routes>
         </ContentArea>
       </MainContent>
@@ -158,13 +186,15 @@ function App() {
     <ThemeProvider theme={theme}>
       <GlobalStyle />
       <QueryClientProvider client={queryClient}>
-        <ToastProvider>
-          <WebSocketProvider>
-            <Router>
-              <AppContent />
-            </Router>
-          </WebSocketProvider>
-        </ToastProvider>
+        <AuthProvider>
+          <ToastProvider>
+            <WebSocketProvider>
+              <Router>
+                <AppContent />
+              </Router>
+            </WebSocketProvider>
+          </ToastProvider>
+        </AuthProvider>
       </QueryClientProvider>
     </ThemeProvider>
   );

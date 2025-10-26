@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { Bell, User, Wifi, Activity, WifiOff } from 'lucide-react';
+import { Bell, Wifi, Activity, WifiOff } from 'lucide-react';
 import qkdApi from '../api/qkdApi';
+import UserProfile from './UserProfile';
 
 const HeaderContainer = styled.header`
   background: white;
@@ -97,48 +98,6 @@ const NotificationBadge = styled.span`
   justify-content: center;
 `;
 
-const UserProfile = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 8px 16px;
-  background: #f8fafc;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-
-  &:hover {
-    background: #e2e8f0;
-  }
-`;
-
-const UserAvatar = styled.div`
-  width: 32px;
-  height: 32px;
-  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-weight: 600;
-`;
-
-const UserInfo = styled.div`
-  display: flex;
-  flex-direction: column;
-`;
-
-const UserName = styled.span`
-  font-weight: 600;
-  color: #1e293b;
-  font-size: 14px;
-`;
-
-const UserRole = styled.span`
-  color: #64748b;
-  font-size: 12px;
-`;
 
 const Header = ({ currentPage = 'Dashboard' }) => {
   const [connectionStatus, setConnectionStatus] = useState('checking');
@@ -193,13 +152,7 @@ const Header = ({ currentPage = 'Dashboard' }) => {
           <NotificationBadge />
         </IconButton>
         
-        <UserProfile>
-          <UserAvatar>Q</UserAvatar>
-          <UserInfo>
-            <UserName>Quantum User</UserName>
-            <UserRole>Researcher</UserRole>
-          </UserInfo>
-        </UserProfile>
+        <UserProfile />
       </HeaderRight>
     </HeaderContainer>
   );

@@ -193,3 +193,37 @@ class PhotonSourceParameters(BaseModel):
     repetition_rate: Optional[float] = Field(None, description="Repetition rate")
     wavelength: Optional[float] = Field(None, description="Photon wavelength")
     pulse_duration: Optional[float] = Field(None, description="Pulse duration")
+
+
+class UserBase(BaseModel):
+    email: str = Field(..., description="User email address")
+    name: str = Field(..., description="User full name")
+    picture: Optional[str] = Field(None, description="User profile picture URL")
+
+
+class UserCreate(UserBase):
+    google_id: str = Field(..., description="Google user ID")
+
+
+class UserResponse(UserBase):
+    id: int = Field(..., description="User ID")
+    google_id: str = Field(..., description="Google user ID")
+    is_active: bool = Field(True, description="Whether user is active")
+    created_at: str = Field(..., description="User creation timestamp")
+    last_login: Optional[str] = Field(None, description="Last login timestamp")
+
+
+class GoogleAuthRequest(BaseModel):
+    credential: str = Field(..., description="Google OAuth credential token")
+
+
+class AuthResponse(BaseModel):
+    access_token: str = Field(..., description="JWT access token")
+    token_type: str = Field("bearer", description="Token type")
+    user: UserResponse = Field(..., description="User information")
+    expires_in: int = Field(3600, description="Token expiration time in seconds")
+
+
+class TokenData(BaseModel):
+    user_id: Optional[int] = None
+    email: Optional[str] = None

@@ -15,6 +15,8 @@ from .models.schemas import (
     SimulationRequest, SimulationResponse, SimulationStatus,
     ParameterSweepRequest, AttackSimulationRequest, DashboardData
 )
+from .models.database import create_tables
+from .api.auth import router as auth_router
 from .config import settings
 
 app = FastAPI(
@@ -22,13 +24,24 @@ app = FastAPI(
     description=settings.APP_DESCRIPTION,
     version=settings.APP_VERSION
 )
+# CORS configuration for production
+cors_origins = settings.CORS_ALLOW_ORIGINS
+if isinstance(cors_origins, str):
+    cors_origins = [origin.strip() for origin in cors_origins.split(",")]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.CORS_ALLOW_ORIGINS,
+    allow_origins=cors_origins,
     allow_credentials=settings.CORS_ALLOW_CREDENTIALS,
     allow_methods=settings.CORS_ALLOW_METHODS,
     allow_headers=settings.CORS_ALLOW_HEADERS,
 )
+
+# Create database tables
+create_tables()
+
+# Include authentication routes
+app.include_router(auth_router)
 
 simulator = QKDSimulator()
 messaging_service = create_secure_messaging_service(simulator)
@@ -43,6 +56,10 @@ async def root():
         "version": "1.0.0",
         "endpoints": [
             "/docs",
+            "/auth/google",
+            "/auth/me",
+            "/auth/logout",
+            "/auth/verify",
             "/simulate/bb84",
             "/simulate/status/{simulation_id}",
             "/simulate/history",
@@ -104,16 +121,6 @@ async def run_bb84_simulation(request: SimulationRequest):
 
 @app.post("/simulate/bb84/async", response_model=SimulationResponse)
 async def run_bb84_simulation_async(request: SimulationRequest, bg_tasks: BackgroundTasks):
-    """
-    Run BB84 protocol simulation asynchronously
-    
-    Args:
-        request: Simulation parameters
-        bg_tasks: FastAPI background tasks
-        
-    Returns:
-        Simulation response with ID for status checking
-    """
     try:
 
         params = SimulationParameters(
@@ -130,7 +137,6 @@ async def run_bb84_simulation_async(request: SimulationRequest, bg_tasks: Backgr
 
         simulation_id = f"qkd_sim_{int(asyncio.get_event_loop().time())}_{hash(str(params))}"
         
-
         global background_tasks
         background_tasks[simulation_id] = {
             "status": "running",
@@ -138,7 +144,6 @@ async def run_bb84_simulation_async(request: SimulationRequest, bg_tasks: Backgr
             "start_time": asyncio.get_event_loop().time()
         }
         
-
         bg_tasks.add_task(run_simulation_background, simulation_id, params)
         
         return SimulationResponse(
@@ -154,7 +159,6 @@ async def run_bb84_simulation_async(request: SimulationRequest, bg_tasks: Backgr
 
 
 async def run_simulation_background(simulation_id: str, params: SimulationParameters):
-    """Background task for running simulation with real-time updates"""
     try:
         background_tasks[simulation_id]["status"] = "running"
         await broadcast_update({
@@ -215,7 +219,6 @@ async def run_simulation_background(simulation_id: str, params: SimulationParame
 
 
 async def broadcast_update(message: Dict[str, Any]):
-    """Broadcast real-time updates to all connected clients"""
     if not active_connections:
         return
     
@@ -234,7 +237,6 @@ async def broadcast_update(message: Dict[str, Any]):
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
-    """WebSocket endpoint for real-time updates"""
     await websocket.accept()
     active_connections.append(websocket)
     
@@ -252,15 +254,6 @@ async def websocket_endpoint(websocket: WebSocket):
 
 @app.get("/simulate/status/{simulation_id}", response_model=SimulationStatus)
 async def get_simulation_status(simulation_id: str):
-    """
-    Get simulation status and results
-    
-    Args:
-        simulation_id: ID of the simulation
-        
-    Returns:
-        Simulation status and results
-    """
 
     if simulation_id in background_tasks:
         task_info = background_tasks[simulation_id]
@@ -322,7 +315,6 @@ async def get_simulation_status(simulation_id: str):
 
 @app.get("/simulate/history")
 async def get_simulation_history():
-    """Get simulation history"""
     try:
         history = simulator.get_simulation_history()
         return {
@@ -335,15 +327,6 @@ async def get_simulation_history():
 
 @app.post("/simulate/parameter-sweep")
 async def run_parameter_sweep(request: ParameterSweepRequest):
-    """
-    Run multiple simulations with different parameter combinations
-    
-    Args:
-        request: Parameter sweep configuration
-        
-    Returns:
-        List of simulation IDs
-    """
     try:
 
         base_params = SimulationParameters(
@@ -372,7 +355,6 @@ async def run_parameter_sweep(request: ParameterSweepRequest):
 
 @app.get("/metrics/qber")
 async def get_qber_metrics():
-    """Get QBER metrics from recent simulations"""
     try:
         history = simulator.get_simulation_history()
         if not history:
@@ -395,15 +377,6 @@ async def get_qber_metrics():
 
 @app.post("/attack/simulate")
 async def simulate_attack_scenario(request: AttackSimulationRequest):
-    """
-    Simulate specific attack scenarios
-    
-    Args:
-        request: Attack simulation parameters
-        
-    Returns:
-        Attack simulation results
-    """
     try:
 
         params = SimulationParameters(
@@ -432,7 +405,6 @@ async def simulate_attack_scenario(request: AttackSimulationRequest):
 
 @app.get("/dashboard/data", response_model=DashboardData)
 async def get_dashboard_data():
-    """Get real-time data for dashboard"""
     try:
 
         history = simulator.get_simulation_history()
@@ -468,7 +440,6 @@ async def get_dashboard_data():
 
 @app.get("/simulator/statistics")
 async def get_simulator_statistics():
-    """Get overall simulator statistics"""
     try:
         stats = simulator.get_statistics()
         return stats
@@ -478,7 +449,6 @@ async def get_simulator_statistics():
 
 @app.delete("/simulator/clear-history")
 async def clear_simulation_history():
-    """Clear simulation history"""
     try:
         simulator.clear_history()
         background_tasks.clear()
@@ -491,16 +461,6 @@ async def clear_simulation_history():
 
 @app.post("/advanced/reconciliation")
 async def run_advanced_reconciliation(simulation_id: str, method: str = "cascade"):
-    """
-    Run advanced reconciliation on existing simulation results
-    
-    Args:
-        simulation_id: ID of the simulation
-        method: Reconciliation method (cascade, ldpc, hybrid)
-        
-    Returns:
-        Reconciliation results
-    """
     try:
         result = simulator.get_simulation_by_id(simulation_id)
         if not result:
@@ -538,16 +498,6 @@ async def run_advanced_reconciliation(simulation_id: str, method: str = "cascade
 
 @app.post("/advanced/privacy-amplification")
 async def run_advanced_privacy_amplification(simulation_id: str, method: str = "toeplitz"):
-    """
-    Run advanced privacy amplification on existing simulation results
-    
-    Args:
-        simulation_id: ID of the simulation
-        method: Privacy amplification method (toeplitz, universal, hybrid)
-        
-    Returns:
-        Privacy amplification results
-    """
     try:
         result = simulator.get_simulation_by_id(simulation_id)
         if not result:
@@ -585,16 +535,6 @@ async def run_advanced_privacy_amplification(simulation_id: str, method: str = "
 
 @app.post("/advanced/decoy-states")
 async def run_decoy_state_simulation(simulation_id: str, decoy_parameters: Dict = None):
-    """
-    Run decoy-state analysis on existing simulation results
-    
-    Args:
-        simulation_id: ID of the simulation
-        decoy_parameters: Decoy state parameters
-        
-    Returns:
-        Decoy-state analysis results
-    """
     try:
         result = simulator.get_simulation_by_id(simulation_id)
         if not result:
@@ -631,17 +571,6 @@ async def run_decoy_state_simulation(simulation_id: str, decoy_parameters: Dict 
 
 @app.post("/secure-communication/create-demo")
 async def create_secure_communication_demo(simulation_id: str, encryption_mode: str = "GCM", key_length: int = 256):
-    """
-    Create a secure communication demo using QKD-generated keys
-    
-    Args:
-        simulation_id: ID of the simulation to use for keys
-        encryption_mode: AES encryption mode (GCM, CBC, CTR)
-        key_length: AES key length (128, 192, 256)
-        
-    Returns:
-        Demo configuration and status
-    """
     try:
         result = simulator.create_secure_communication_demo(simulation_id, encryption_mode, key_length)
         return result
@@ -651,15 +580,6 @@ async def create_secure_communication_demo(simulation_id: str, encryption_mode: 
 
 @app.post("/secure-communication/run-demo")
 async def run_secure_communication_demo(messages: List[Dict]):
-    """
-    Run a secure communication demo
-    
-    Args:
-        messages: List of message dictionaries with 'sender', 'receiver', 'content'
-        
-    Returns:
-        List of communication records
-    """
     try:
         result = simulator.run_secure_communication_demo(messages)
         return result
@@ -669,7 +589,6 @@ async def run_secure_communication_demo(messages: List[Dict]):
 
 @app.get("/secure-communication/stats")
 async def get_secure_communication_stats():
-    """Get statistics about secure communication demo"""
     try:
         result = simulator.get_secure_communication_stats()
         return result
@@ -679,7 +598,6 @@ async def get_secure_communication_stats():
 
 @app.post("/secure-communication/export-log")
 async def export_secure_communication_log(payload: Dict = Body(...)):
-    """Export secure communication log to file"""
     try:
         filepath = payload.get("filepath")
         if not filepath:
@@ -695,16 +613,6 @@ async def export_secure_communication_log(payload: Dict = Body(...)):
 
 @app.get("/advanced/optimize-decoy-states")
 async def optimize_decoy_state_parameters(target_distance: float = 50.0, channel_loss: float = 0.2):
-    """
-    Optimize decoy-state parameters for maximum key rate
-    
-    Args:
-        target_distance: Target transmission distance in km
-        channel_loss: Channel loss per kilometer in dB/km
-        
-    Returns:
-        Optimization results
-    """
     try:
         from .core.decoy_states import DecoyStateOptimization
         
@@ -725,7 +633,6 @@ async def optimize_decoy_state_parameters(target_distance: float = 50.0, channel
 
 @app.exception_handler(Exception)
 async def global_exception_handler(request, exc):
-    """Global exception handler"""
     return JSONResponse(
         status_code=500,
         content={"detail": f"Internal server error: {str(exc)}"}
@@ -736,16 +643,6 @@ async def global_exception_handler(request, exc):
 
 @app.get("/messaging/keys/generate")
 async def generate_quantum_key(user_id: str, key_length: int = 256):
-    """
-    Generate a quantum key for a specific user
-    
-    Args:
-        user_id: Unique identifier for the user
-        key_length: Desired key length in bits (128, 192, or 256)
-        
-    Returns:
-        Quantum key generation result
-    """
     try:
         if key_length not in [128, 192, 256]:
             raise HTTPException(status_code=400, detail="Key length must be 128, 192, or 256 bits")
@@ -770,7 +667,6 @@ async def generate_quantum_key(user_id: str, key_length: int = 256):
 
 @app.get("/messaging/keys/statistics")
 async def get_quantum_key_statistics():
-    """Get statistics about quantum key generation"""
     try:
         stats = simulator.get_quantum_key_statistics()
         return stats
@@ -780,15 +676,6 @@ async def get_quantum_key_statistics():
 
 @app.post("/messaging/keys/shared/generate")
 async def generate_shared_quantum_key(request: dict = Body(...)):
-    """
-    Generate a shared quantum key between two users (simulates real QKD)
-    
-    Args:
-        request: Dictionary with user1_id, user2_id, and key_length
-        
-    Returns:
-        Shared quantum key generation result
-    """
     try:
         required_fields = ['user1_id', 'user2_id']
         for field in required_fields:
@@ -815,15 +702,6 @@ async def generate_shared_quantum_key(request: dict = Body(...)):
 
 @app.get("/messaging/keys/{user_id}")
 async def get_user_quantum_key(user_id: str):
-    """
-    Get the current quantum key for a user
-    
-    Args:
-        user_id: User identifier
-        
-    Returns:
-        User's quantum key information
-    """
     try:
         key_data = simulator.get_user_quantum_key(user_id)
         
@@ -852,16 +730,6 @@ async def get_user_quantum_key(user_id: str):
 
 @app.post("/messaging/keys/{user_id}/refresh")
 async def refresh_quantum_key(user_id: str, key_length: int = 256):
-    """
-    Generate a new quantum key for a user
-    
-    Args:
-        user_id: User identifier
-        key_length: Desired key length in bits
-        
-    Returns:
-        New quantum key generation result
-    """
     try:
         if key_length not in [128, 192, 256]:
             raise HTTPException(status_code=400, detail="Key length must be 128, 192, or 256 bits")
@@ -886,15 +754,6 @@ async def refresh_quantum_key(user_id: str, key_length: int = 256):
 
 @app.post("/messaging/send")
 async def send_secure_message(request: dict = Body(...)):
-    """
-    Send a secure message using quantum keys
-    
-    Args:
-        request: Dictionary with sender_id, receiver_id, message, encryption_mode, key_length
-        
-    Returns:
-        Message sending result
-    """
     try:
         required_fields = ['sender_id', 'receiver_id', 'message']
         for field in required_fields:
@@ -929,15 +788,6 @@ async def send_secure_message(request: dict = Body(...)):
 
 @app.post("/messaging/receive")
 async def receive_secure_message(request: dict = Body(...)):
-    """
-    Receive and decrypt a secure message
-    
-    Args:
-        request: Dictionary with receiver_id and message_id
-        
-    Returns:
-        Decrypted message and details
-    """
     try:
         required_fields = ['receiver_id', 'message_id']
         for field in required_fields:
@@ -963,16 +813,6 @@ async def receive_secure_message(request: dict = Body(...)):
 
 @app.get("/messaging/messages/{user_id}")
 async def get_user_messages(user_id: str, message_type: str = "all"):
-    """
-    Get messages for a specific user
-    
-    Args:
-        user_id: User identifier
-        message_type: Type of messages ('sent', 'received', 'all')
-        
-    Returns:
-        List of user's messages
-    """
     try:
         if message_type not in ['sent', 'received', 'all']:
             raise HTTPException(status_code=400, detail="Message type must be 'sent', 'received', or 'all'")
@@ -991,16 +831,6 @@ async def get_user_messages(user_id: str, message_type: str = "all"):
 
 @app.get("/messaging/messages/{message_id}/details")
 async def get_message_details(message_id: str, user_id: str):
-    """
-    Get detailed information about a specific message
-    
-    Args:
-        message_id: Message identifier
-        user_id: User requesting details
-        
-    Returns:
-        Message details if authorized
-    """
     try:
         details = messaging_service.get_message_details(message_id, user_id)
         
@@ -1015,7 +845,6 @@ async def get_message_details(message_id: str, user_id: str):
 
 @app.get("/messaging/statistics")
 async def get_messaging_statistics():
-    """Get statistics about the messaging service"""
     try:
         stats = messaging_service.get_messaging_statistics()
         return stats
@@ -1025,15 +854,6 @@ async def get_messaging_statistics():
 
 @app.delete("/messaging/clear-expired")
 async def clear_expired_messages(max_age_hours: int = 24):
-    """
-    Clear expired messages
-    
-    Args:
-        max_age_hours: Maximum age in hours for messages to keep
-        
-    Returns:
-        Number of messages cleared
-    """
     try:
         cleared_count = messaging_service.clear_expired_messages(max_age_hours)
         return {
