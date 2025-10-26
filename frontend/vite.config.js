@@ -24,4 +24,6 @@ export default defineConfig({
     host: true,
     historyApiFallback: true,
   },
+  // Ensure proper base path for production
+  base: './',
 })
