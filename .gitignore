@@ -117,5 +117,5 @@ public
 tmp/
 temp/
 
-# Render deployment files
-render.yaml
+# Render deployment files (allow frontend render.yaml)
+backend/render.yaml

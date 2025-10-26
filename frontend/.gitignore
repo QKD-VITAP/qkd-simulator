@@ -11,6 +11,9 @@ dist/
 dist-ssr/
 build/
 
+# Allow specific public files for deployment
+!public/_redirects
+
 # Environment files
 .env
 .env.local
