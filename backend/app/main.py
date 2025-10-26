@@ -878,64 +878,25 @@ frontend_dist = project_root / "frontend" / "dist"
 # Mount static files if they exist (for production builds)
 if frontend_dist.exists():
     app.mount("/static", StaticFiles(directory=str(frontend_dist / "assets")), name="static")
+
+# Catch-all route for SPA routing - MUST be the last route defined
+@app.get("/{full_path:path}")
+async def serve_react_app(full_path: str):
+    # Don't serve React app for API routes, docs, or static files
+    if (full_path.startswith("api/") or 
+        full_path.startswith("docs") or 
+        full_path.startswith("redoc") or
+        full_path.startswith("static/") or
+        full_path.startswith("_redirects") or
+        full_path.endswith((".js", ".css", ".png", ".jpg", ".jpeg", ".gif", ".svg", ".ico", ".woff", ".woff2", ".ttf", ".eot"))):
+        raise HTTPException(status_code=404, detail="Not found")
     
-    # Serve the React app for all non-API routes (SPA routing)
-    @app.get("/{full_path:path}")
-    async def serve_react_app(full_path: str):
-        # Don't serve React app for API routes, docs, or static files
-        if (full_path.startswith("api/") or 
-            full_path.startswith("docs") or 
-            full_path.startswith("redoc") or
-            full_path.startswith("static/") or
-            full_path.startswith("_redirects") or
-            full_path.endswith((".js", ".css", ".png", ".jpg", ".jpeg", ".gif", ".svg", ".ico", ".woff", ".woff2", ".ttf", ".eot"))):
-            raise HTTPException(status_code=404, detail="Not found")
-        
-        # Serve index.html for all other routes (SPA routing)
-        index_file = frontend_dist / "index.html"
-        if index_file.exists():
-            return FileResponse(str(index_file))
-        else:
-            raise HTTPException(status_code=404, detail="Frontend not built")
-else:
-    # Fallback for development or when frontend is not built
-    @app.get("/{full_path:path}")
-    async def serve_react_app_fallback(full_path: str):
-        # Don't serve React app for API routes, docs, or static files
-        if (full_path.startswith("api/") or 
-            full_path.startswith("docs") or 
-            full_path.startswith("redoc") or
-            full_path.startswith("static/") or
-            full_path.endswith((".js", ".css", ".png", ".jpg", ".jpeg", ".gif", ".svg", ".ico", ".woff", ".woff2", ".ttf", ".eot"))):
-            raise HTTPException(status_code=404, detail="Not found")
-        
-        # Return a simple HTML page for development
-        return HTMLResponse("""
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>QKD Simulator - Development Mode</title>
-            <style>
-                body { font-family: Arial, sans-serif; margin: 40px; }
-                .container { max-width: 600px; margin: 0 auto; }
-                .warning { background: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 5px; margin: 20px 0; }
-            </style>
-        </head>
-        <body>
-            <div class="container">
-                <h1>QKD Simulator</h1>
-                <div class="warning">
-                    <strong>Development Mode:</strong> Frontend not built. Please run <code>npm run build</code> in the frontend directory.
-                </div>
-                <p>Available API endpoints:</p>
-                <ul>
-                    <li><a href="/docs">API Documentation</a></li>
-                    <li><a href="/">API Root</a></li>
-                </ul>
-            </div>
-        </body>
-        </html>
-        """)
+    # Serve the built React app
+    index_file = frontend_dist / "index.html"
+    if index_file.exists():
+        return FileResponse(str(index_file))
+    else:
+        raise HTTPException(status_code=404, detail="Frontend not built")
 
 if __name__ == "__main__":
     import uvicorn
