@@ -81,8 +81,15 @@ const GoogleSignIn = ({ onSuccess }) => {
   useEffect(() => {
     // Load Google Identity Services
     const loadGoogleScript = () => {
-      if (window.google) {
+      if (window.google && window.google.accounts) {
         initializeGoogleSignIn();
+        return;
+      }
+
+      // Check if script is already loaded
+      const existingScript = document.querySelector('script[src="https://accounts.google.com/gsi/client"]');
+      if (existingScript) {
+        existingScript.onload = initializeGoogleSignIn;
         return;
       }
 
@@ -91,28 +98,35 @@ const GoogleSignIn = ({ onSuccess }) => {
       script.async = true;
       script.defer = true;
       script.onload = initializeGoogleSignIn;
+      script.onerror = () => {
+        console.error('Failed to load Google Sign-In script');
+      };
       document.head.appendChild(script);
     };
 
     const initializeGoogleSignIn = () => {
-      if (window.google && googleButtonRef.current) {
-        window.google.accounts.id.initialize({
-          client_id: AUTH_CONFIG.GOOGLE_CLIENT_ID,
-          callback: handleCredentialResponse,
-          auto_select: false,
-          cancel_on_tap_outside: true
-        });
+      if (window.google && window.google.accounts && googleButtonRef.current) {
+        try {
+          window.google.accounts.id.initialize({
+            client_id: AUTH_CONFIG.GOOGLE_CLIENT_ID,
+            callback: handleCredentialResponse,
+            auto_select: false,
+            cancel_on_tap_outside: true
+          });
 
-        window.google.accounts.id.renderButton(
-          googleButtonRef.current,
-          {
-            theme: 'outline',
-            size: 'large',
-            width: '100%',
-            text: 'signin_with',
-            shape: 'rectangular'
-          }
-        );
+          window.google.accounts.id.renderButton(
+            googleButtonRef.current,
+            {
+              theme: 'outline',
+              size: 'large',
+              width: 300,
+              text: 'signin_with',
+              shape: 'rectangular'
+            }
+          );
+        } catch (error) {
+          console.error('Error initializing Google Sign-In:', error);
+        }
       }
     };
 
@@ -121,6 +135,7 @@ const GoogleSignIn = ({ onSuccess }) => {
 
   const handleCredentialResponse = async (response) => {
     try {
+      console.log('Google credential response received');
       const result = await login(response.credential);
       
       if (result.success) {

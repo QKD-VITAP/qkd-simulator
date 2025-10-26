@@ -19,6 +19,7 @@ export const AuthProvider = ({ children }) => {
 
   // Configure axios defaults
   useEffect(() => {
+    axios.defaults.baseURL = AUTH_CONFIG.API_BASE_URL;
     if (token) {
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
     } else {
