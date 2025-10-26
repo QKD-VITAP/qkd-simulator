@@ -28,19 +28,14 @@ A comprehensive Quantum Key Distribution (QKD) simulator with modern web interfa
 
 2. **Run Development Servers**
    
-   **Option A: Run both servers together**
+   **Backend Server**
    ```bash
-   # From project root
-   python start-dev.py
-   ```
-   
-   **Option B: Run separately**
-   ```bash
-   # Terminal 1 - Backend
    cd backend
    python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+   ```
    
-   # Terminal 2 - Frontend
+   **Frontend Server (in a separate terminal)**
+   ```bash
    cd frontend
    npm run dev
    ```
@@ -74,10 +69,12 @@ A comprehensive Quantum Key Distribution (QKD) simulator with modern web interfa
 
 If you get a 404 error when refreshing pages in development:
 
-1. **Use the development script**: `python start-dev.py`
-2. **Or ensure you're accessing via the correct port**:
+1. **Ensure you're accessing via the correct port**:
    - Frontend: http://localhost:5173 (for development)
    - Backend: http://localhost:8000 (for production)
+2. **Make sure both servers are running**:
+   - Backend server on port 8000
+   - Frontend dev server on port 5173
 
 ### Mobile Issues
 
