@@ -33,6 +33,10 @@ const SidebarContainer = styled.aside`
     width: 280px;
     z-index: 1000;
   }
+
+  @media (max-width: 480px) {
+    width: 100vw;
+  }
 `;
 
 const MobileOverlay = styled.div`

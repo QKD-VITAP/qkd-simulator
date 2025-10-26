@@ -39,6 +39,12 @@ const GlobalStyle = createGlobalStyle`
       font-size: 14px;
     }
   }
+
+  @media (max-width: 480px) {
+    body {
+      font-size: 13px;
+    }
+  }
 `;
 
 const theme = {
@@ -55,7 +61,8 @@ const theme = {
     border: '#e2e8f0',
   },
   breakpoints: {
-    mobile: '768px',
+    mobile: '480px',
+    mobileLarge: '768px',
     tablet: '1024px',
     desktop: '1280px',
   },
@@ -74,7 +81,7 @@ const AppContainer = styled.div`
   height: 100vh;
   background-color: ${props => props.theme.colors.background};
 
-  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+  @media (max-width: ${props => props.theme.breakpoints.mobileLarge}) {
     flex-direction: column;
   }
 `;
@@ -86,7 +93,7 @@ const MainContent = styled.main`
   overflow: hidden;
   min-width: 0;
 
-  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+  @media (max-width: ${props => props.theme.breakpoints.mobileLarge}) {
     height: calc(100vh - 60px);
   }
 `;
@@ -98,8 +105,12 @@ const ContentArea = styled.div`
   min-height: 0;
   width: 100%;
 
-  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+  @media (max-width: ${props => props.theme.breakpoints.mobileLarge}) {
     padding: ${props => props.theme.spacing.md};
+  }
+
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    padding: ${props => props.theme.spacing.sm};
   }
 `;
 
@@ -136,6 +147,12 @@ function AppContent() {
     }
   };
 
+  const isLoginPage = location.pathname === '/login';
+
+  if (isLoginPage) {
+    return <Login />;
+  }
+
   return (
     <AppContainer>
       <Sidebar isOpen={sidebarOpen} onToggle={() => setSidebarOpen(!sidebarOpen)} />
@@ -143,7 +160,6 @@ function AppContent() {
         <Header currentPage={getPageTitle(location.pathname)} />
         <ContentArea>
           <Routes>
-            <Route path="/login" element={<Login />} />
             <Route path="/" element={
               <ProtectedRoute>
                 <Dashboard />

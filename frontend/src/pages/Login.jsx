@@ -20,6 +20,17 @@ const LoginCard = styled.div`
   padding: 3rem;
   max-width: 500px;
   width: 100%;
+
+  @media (max-width: 768px) {
+    padding: 2rem;
+    margin: 1rem;
+  }
+
+  @media (max-width: 480px) {
+    padding: 1.5rem;
+    margin: 0.5rem;
+    border-radius: 12px;
+  }
 `;
 
 const Logo = styled.div`
@@ -32,6 +43,10 @@ const LogoTitle = styled.h1`
   font-weight: 700;
   color: #1e293b;
   margin-bottom: 0.5rem;
+
+  @media (max-width: 480px) {
+    font-size: 1.5rem;
+  }
 `;
 
 const LogoSubtitle = styled.p`
