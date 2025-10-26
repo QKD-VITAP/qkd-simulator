@@ -13,7 +13,7 @@ A comprehensive Quantum Key Distribution (QKD) simulator with modern web interfa
 
 ## Quick Start
 
-### Development Mode
+### Production Deployment
 
 1. **Install Dependencies**
    ```bash
@@ -26,40 +26,19 @@ A comprehensive Quantum Key Distribution (QKD) simulator with modern web interfa
    npm install
    ```
 
-2. **Run Development Servers**
-   
-   **Backend Server**
-   ```bash
-   cd backend
-   python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
-   ```
-   
-   **Frontend Server (in a separate terminal)**
-   ```bash
-   cd frontend
-   npm run dev
-   ```
-
-3. **Access the Application**
-   - Frontend: http://localhost:5173
-   - Backend API: http://localhost:8000
-   - API Docs: http://localhost:8000/docs
-
-### Production Mode
-
-1. **Build Frontend**
+2. **Build Frontend**
    ```bash
    cd frontend
    npm run build
    ```
 
-2. **Run Backend (serves both API and frontend)**
+3. **Run Production Server**
    ```bash
    cd backend
    python -m uvicorn app.main:app --host 0.0.0.0 --port 8000
    ```
 
-3. **Access the Application**
+4. **Access the Application**
    - Application: http://localhost:8000
    - API Docs: http://localhost:8000/docs
 
@@ -67,14 +46,11 @@ A comprehensive Quantum Key Distribution (QKD) simulator with modern web interfa
 
 ### 404 Error on Page Refresh
 
-If you get a 404 error when refreshing pages in development:
+If you get a 404 error when refreshing pages:
 
-1. **Ensure you're accessing via the correct port**:
-   - Frontend: http://localhost:5173 (for development)
-   - Backend: http://localhost:8000 (for production)
-2. **Make sure both servers are running**:
-   - Backend server on port 8000
-   - Frontend dev server on port 5173
+1. **Ensure the frontend is built**: Run `npm run build` in the frontend directory
+2. **Make sure the backend is running**: The backend serves both API and frontend in production
+3. **Access via the correct URL**: http://localhost:8000 (not the dev server port)
 
 ### Mobile Issues
 
