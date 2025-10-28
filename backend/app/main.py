@@ -15,7 +15,7 @@ from .core.attack_models import AttackType
 from .core.secure_messaging_service import create_secure_messaging_service
 from .models.schemas import (
     SimulationRequest, SimulationResponse, SimulationStatus,
-    ParameterSweepRequest, AttackSimulationRequest, DashboardData
+    ParameterSweepRequest, AttackSimulationRequest
 )
 from .models.database import create_tables
 from .api.auth import router as auth_router
@@ -67,7 +67,6 @@ async def root():
             "/simulate/history",
             "/metrics/qber",
             "/attack/simulate",
-            "/dashboard/data",
             "/messaging/keys/generate",
             "/messaging/keys/shared/generate",
             "/messaging/keys/{user_id}",
@@ -405,39 +404,7 @@ async def simulate_attack_scenario(request: AttackSimulationRequest):
         raise HTTPException(status_code=500, detail=f"Attack simulation failed: {str(e)}")
 
 
-@app.get("/dashboard/data", response_model=DashboardData)
-async def get_dashboard_data():
-    try:
-
-        history = simulator.get_simulation_history()
-        recent_simulations = history[-10:] if len(history) >= 10 else history
-        
-
-        stats = simulator.get_statistics()
-        
-
-        if recent_simulations:
-            recent_qber = [sim["bb84_result"]["qber"] for sim in recent_simulations]
-            recent_key_lengths = [sim["bb84_result"]["final_key_length"] for sim in recent_simulations]
-            
-            real_time_metrics = {
-                "recent_qber_trend": recent_qber,
-                "recent_key_lengths": recent_key_lengths,
-                "average_qber_last_10": sum(recent_qber) / len(recent_qber),
-                "total_key_bits_generated": sum(recent_key_lengths)
-            }
-        else:
-            real_time_metrics = {}
-        
-        return DashboardData(
-            overall_statistics=stats,
-            recent_simulations=len(recent_simulations),
-            real_time_metrics=real_time_metrics,
-            last_updated=asyncio.get_event_loop().time()
-        )
-        
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to retrieve dashboard data: {str(e)}")
+# Removed deprecated /dashboard/data endpoint
 
 
 @app.get("/simulator/statistics")

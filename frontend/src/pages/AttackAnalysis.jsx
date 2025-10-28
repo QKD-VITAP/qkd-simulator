@@ -218,11 +218,9 @@ const AttackAnalysis = () => {
           final_key_length: response.final_key_length
         });
       } else {
-        console.error('Attack simulation failed:', response);
         alert('Attack simulation failed. Please try again.');
       }
     } catch (err) {
-      console.error('Failed to run attack simulation:', err);
       alert('Unable to run attack simulation');
     }
   };

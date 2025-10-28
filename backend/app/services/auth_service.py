@@ -49,7 +49,6 @@ class AuthService:
             }
             
         except ValueError as e:
-            print(f"Token verification failed: {e}")
             return None
     
     def create_access_token(self, data: dict, expires_delta: Optional[timedelta] = None):

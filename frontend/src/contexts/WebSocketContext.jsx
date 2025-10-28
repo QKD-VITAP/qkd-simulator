@@ -32,8 +32,7 @@ export const WebSocketProvider = ({ children }) => {
         try {
           const data = JSON.parse(event.data);
           setLastMessage(data);
-        } catch (error) {
-          console.error('Error parsing WebSocket message:', error);
+        } catch {
         }
       };
 
@@ -50,13 +49,9 @@ export const WebSocketProvider = ({ children }) => {
         }
       };
 
-      ws.onerror = (error) => {
-        console.error('WebSocket error:', error);
-      };
+      ws.onerror = () => {};
 
-    } catch (error) {
-      console.error('Error creating WebSocket connection:', error);
-    }
+    } catch {}
   };
 
   const disconnect = () => {

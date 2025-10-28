@@ -69,7 +69,7 @@ const HeaderRight = styled.div`
 
 
 
-const Header = ({ currentPage = 'Dashboard' }) => {
+const Header = ({ currentPage = 'Simulation' }) => {
   const [connectionStatus, setConnectionStatus] = useState('checking');
   const [lastCheck, setLastCheck] = useState(null);
 

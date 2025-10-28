@@ -387,9 +387,7 @@ const SecureMessaging = () => {
           setUserKeys(prev => ({ ...prev, [newUser]: response }));
           setQuantumKey(response);
         }
-      } catch (error) {
-        console.error('Failed to generate key for new user:', error);
-      }
+      } catch (error) {}
     } else {
       setQuantumKey(userKeys[newUser]);
     }
@@ -411,7 +409,6 @@ const SecureMessaging = () => {
         alert('❌ Failed to generate quantum key');
       }
     } catch (error) {
-      console.error('Failed to generate quantum key:', error);
       alert('❌ Failed to generate quantum key. Please try again.');
     } finally {
       setKeyLoading(false);
@@ -432,7 +429,6 @@ const SecureMessaging = () => {
         alert('❌ Failed to refresh quantum key');
       }
     } catch (error) {
-      console.error('Failed to refresh quantum key:', error);
       alert('❌ Failed to refresh quantum key. Please try again.');
     } finally {
       setKeyLoading(false);
@@ -450,7 +446,6 @@ const SecureMessaging = () => {
       setMessages(sentMessages);
       setReceivedMessages(receivedMessages);
     } catch (error) {
-      console.error('Failed to fetch user messages:', error);
       setMessages([]);
       setReceivedMessages([]);
     }
@@ -493,7 +488,6 @@ const SecureMessaging = () => {
         alert('❌ Failed to generate shared quantum key');
       }
     } catch (error) {
-      console.error('Failed to generate shared quantum key:', error);
       alert('❌ Failed to generate shared quantum key. Please try again.');
     } finally {
       setSharedKeyLoading(false);
@@ -533,16 +527,12 @@ const SecureMessaging = () => {
             if (receiveResponse.success) {
               alert(`🎉 DEMONSTRATION COMPLETE!\n\n✅ ${user1} sent encrypted message\n✅ ${user2} successfully decrypted it\n\nThis proves quantum-secured messaging works!`);
             }
-          } catch (error) {
-            console.error('Demo receive failed:', error);
-          }
+          } catch (error) {}
         }, 500);
         
         alert(`🚀 DEMO MESSAGE SENT!\n\nFrom: ${user1}\nTo: ${user2}\nMessage: ${testMessage}\n\nNow try receiving it as ${user2}!`);
       }
-    } catch (error) {
-      console.error('Demo messaging failed:', error);
-    }
+    } catch (error) {}
   };
 
   const sendSecureMessage = async () => {
@@ -587,7 +577,6 @@ const SecureMessaging = () => {
         alert('❌ Failed to send message');
       }
     } catch (error) {
-      console.error('Failed to send message:', error);
       alert('❌ Failed to send message. Please try again.');
     } finally {
       setSendingMessage(false);
@@ -598,18 +587,14 @@ const SecureMessaging = () => {
     try {
       const stats = await qkdApi.getMessagingStatistics();
       setMessagingStats(stats);
-    } catch (error) {
-      console.error('Failed to fetch messaging stats:', error);
-    }
+    } catch (error) {}
   };
 
   const fetchKeyStats = async () => {
     try {
       const stats = await qkdApi.getQuantumKeyStatistics();
       setKeyStats(stats);
-    } catch (error) {
-      console.error('Failed to fetch key stats:', error);
-    }
+    } catch (error) {}
   };
 
   const receiveMessage = async (messageId) => {
@@ -634,7 +619,6 @@ const SecureMessaging = () => {
         alert('❌ Failed to decrypt message');
       }
     } catch (error) {
-      console.error('Failed to receive message:', error);
       alert('❌ Failed to receive message. Please try again.');
     }
   };
@@ -647,9 +631,7 @@ const SecureMessaging = () => {
           setQuantumKey(response);
           setUserKeys(prev => ({ ...prev, [currentUser]: response }));
         }
-      } catch (error) {
-        console.error('Failed to check user key:', error);
-      }
+      } catch (error) {}
     };
 
     checkUserKey();

@@ -95,9 +95,7 @@ class QKDApi {
     });
   }
 
-  async getDashboardData() {
-    return this.request('/dashboard/data');
-  }
+  // Removed deprecated dashboard client method
 
   async getSimulatorStatistics() {
     return this.request('/simulator/statistics');

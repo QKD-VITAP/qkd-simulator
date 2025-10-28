@@ -543,7 +543,6 @@ const Simulation = () => {
               }
             }
           } catch (err) {
-            console.error('Failed to get simulation status:', err);
             setSimulationStatus({
               status: 'failed',
               progress: 0,
@@ -561,7 +560,6 @@ const Simulation = () => {
         });
       }
     } catch (err) {
-      console.error('Failed to start simulation:', err);
       setSimulationStatus({
         status: 'failed',
         progress: 0,
@@ -592,7 +590,6 @@ const Simulation = () => {
 
       alert('AES demo completed successfully!');
     } catch (err) {
-      console.error('AES demo failed:', err);
       alert('AES demo failed');
     }
   };

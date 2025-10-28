@@ -116,12 +116,7 @@ class AttackResult(BaseModel):
     attack_details: Optional[Dict[str, Any]] = Field(None, description="Detailed attack information")
 
 
-class DashboardData(BaseModel):
-    """Response model for dashboard data"""
-    overall_statistics: Dict[str, Any] = Field(..., description="Overall simulator statistics")
-    recent_simulations: int = Field(..., description="Number of recent simulations")
-    real_time_metrics: Dict[str, Any] = Field(..., description="Real-time metrics")
-    last_updated: float = Field(..., description="Timestamp of last update")
+# Removed deprecated DashboardData model
 
 
 class SimulationHistory(BaseModel):

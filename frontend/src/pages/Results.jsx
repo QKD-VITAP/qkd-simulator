@@ -234,8 +234,7 @@ const Results = () => {
         }
         
         setError(null);
-      } catch (err) {
-        console.error('Failed to fetch results:', err);
+    } catch (err) {
         setError('Unable to load simulation results');
       } finally {
         setLoading(false);

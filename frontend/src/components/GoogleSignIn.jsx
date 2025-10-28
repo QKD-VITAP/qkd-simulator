@@ -98,9 +98,7 @@ const GoogleSignIn = ({ onSuccess }) => {
       script.async = true;
       script.defer = true;
       script.onload = initializeGoogleSignIn;
-      script.onerror = () => {
-        console.error('Failed to load Google Sign-In script');
-      };
+      script.onerror = () => {};
       document.head.appendChild(script);
     };
 
@@ -124,9 +122,7 @@ const GoogleSignIn = ({ onSuccess }) => {
               shape: 'rectangular'
             }
           );
-        } catch (error) {
-          console.error('Error initializing Google Sign-In:', error);
-        }
+        } catch (error) {}
       }
     };
 
@@ -135,7 +131,6 @@ const GoogleSignIn = ({ onSuccess }) => {
 
   const handleCredentialResponse = async (response) => {
     try {
-      console.log('Google credential response received');
       const result = await login(response.credential);
       
       if (result.success) {
@@ -147,7 +142,6 @@ const GoogleSignIn = ({ onSuccess }) => {
         showToast(result.error || 'Sign in failed', 'error');
       }
     } catch (error) {
-      console.error('Sign in error:', error);
       showToast('An error occurred during sign in', 'error');
     }
   };

@@ -502,8 +502,7 @@ class SecureCommunicationDemo:
                     "statistics": self.get_communication_statistics()
                 }, f, indent=2)
             return True
-        except Exception as e:
-            print(f"Export failed: {e}")
+        except Exception:
             return False
 
 
