@@ -623,12 +623,6 @@ const Simulation = () => {
         <br />• Tests security against various attack scenarios
         <br />• Demonstrates advanced quantum cryptography techniques
         <br />• Shows real-time simulation progress and results
-        <br /><br />
-        <strong>💡 How to Use:</strong>
-        <br />1. Configure your simulation parameters below
-        <br />2. Enable/disable advanced security features
-        <br />3. Click "Run Simulation" to start
-        <br />4. Watch real-time progress and view results
       </InfoBox>
 
 
