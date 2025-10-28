@@ -16,6 +16,9 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [token, setToken] = useState(localStorage.getItem(AUTH_CONFIG.TOKEN_KEY));
+  
+  // Skip auth in development mode
+  const skipAuth = AUTH_CONFIG.SKIP_AUTH_IN_DEV;
 
   // Configure axios defaults
   useEffect(() => {
@@ -30,12 +33,24 @@ export const AuthProvider = ({ children }) => {
   // Check if user is authenticated on app load
   useEffect(() => {
     const checkAuth = async () => {
+      if (skipAuth) {
+        // Skip authentication in development mode
+        setUser({ 
+          id: 'dev-user', 
+          name: 'Development User', 
+          email: 'dev@localhost',
+          picture: null 
+        });
+        setLoading(false);
+        return;
+      }
+      
       if (token) {
         try {
           const response = await axios.get('/auth/me');
           setUser(response.data);
         } catch (error) {
-          console.error('Auth check failed:', error);
+          // Auth check failed, logout user
           logout();
         }
       }
@@ -43,7 +58,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     checkAuth();
-  }, [token]);
+  }, [token, skipAuth]);
 
   const login = async (googleCredential) => {
     try {
@@ -61,7 +76,6 @@ export const AuthProvider = ({ children }) => {
       
       return { success: true, user: userData };
     } catch (error) {
-      console.error('Login failed:', error);
       return { 
         success: false, 
         error: error.response?.data?.detail || 'Login failed' 
@@ -97,7 +111,7 @@ export const AuthProvider = ({ children }) => {
     login,
     logout,
     verifyToken,
-    isAuthenticated: !!user
+    isAuthenticated: skipAuth ? true : !!user
   };
 
   return (

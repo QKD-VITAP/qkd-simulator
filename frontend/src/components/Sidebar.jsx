@@ -125,14 +125,8 @@ const NavText = styled.span`
 const Sidebar = ({ isOpen, onToggle }) => {
   const menuItems = [
     {
-      title: 'Dashboard',
-      path: '/',
-      icon: Home,
-      description: 'Overview and statistics'
-    },
-    {
       title: 'Simulation',
-      path: '/simulation',
+      path: '/',
       icon: Play,
       description: 'Run QKD simulations'
     },
@@ -147,12 +141,6 @@ const Sidebar = ({ isOpen, onToggle }) => {
       path: '/results',
       icon: BarChart3,
       description: 'View simulation results'
-    },
-    {
-      title: 'Advanced Features',
-      path: '/advanced-features',
-      icon: Zap,
-      description: 'Advanced QKD features'
     },
     {
       title: 'Secure Messaging',

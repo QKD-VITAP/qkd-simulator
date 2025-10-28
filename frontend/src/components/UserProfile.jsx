@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
 import { useAuth } from '../contexts/AuthContext';
-import { LogOut, User, Settings } from 'lucide-react';
+import { LogOut } from 'lucide-react';
 
 const ProfileContainer = styled.div`
   position: relative;
@@ -139,16 +139,6 @@ const UserProfile = () => {
             <UserName>{user.name}</UserName>
             <UserEmail>{user.email}</UserEmail>
           </UserInfo>
-          
-          <DropdownItem>
-            <User />
-            Profile
-          </DropdownItem>
-          
-          <DropdownItem>
-            <Settings />
-            Settings
-          </DropdownItem>
           
           <DropdownItem onClick={handleLogout}>
             <LogOut />

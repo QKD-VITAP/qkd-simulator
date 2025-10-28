@@ -11,11 +11,9 @@ import { ToastProvider } from './contexts/ToastContext';
 import { AuthProvider } from './contexts/AuthContext';
 
 import Login from './pages/Login';
-import Dashboard from './pages/Dashboard';
 import Simulation from './pages/Simulation';
 import AttackAnalysis from './pages/AttackAnalysis';
 import Results from './pages/Results';
-import AdvancedFeatures from './pages/AdvancedFeatures';
 import SecureMessaging from './pages/SecureMessaging';
 
 const GlobalStyle = createGlobalStyle`
@@ -131,19 +129,17 @@ function AppContent() {
   const getPageTitle = (pathname) => {
     switch (pathname) {
       case '/':
-        return 'Dashboard';
+        return 'Simulation';
       case '/simulation':
         return 'Simulation';
       case '/attack-analysis':
         return 'Attack Analysis';
       case '/results':
         return 'Results';
-      case '/advanced-features':
-        return 'Advanced Features';
       case '/secure-messaging':
         return 'Secure Messaging';
       default:
-        return 'Dashboard';
+        return 'Simulation';
     }
   };
 
@@ -162,11 +158,6 @@ function AppContent() {
           <Routes>
             <Route path="/" element={
               <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            } />
-            <Route path="/simulation" element={
-              <ProtectedRoute>
                 <Simulation />
               </ProtectedRoute>
             } />
@@ -178,11 +169,6 @@ function AppContent() {
             <Route path="/results" element={
               <ProtectedRoute>
                 <Results />
-              </ProtectedRoute>
-            } />
-            <Route path="/advanced-features" element={
-              <ProtectedRoute>
-                <AdvancedFeatures />
               </ProtectedRoute>
             } />
             <Route path="/secure-messaging" element={

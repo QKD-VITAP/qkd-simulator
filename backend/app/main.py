@@ -489,11 +489,14 @@ async def run_advanced_reconciliation(simulation_id: str, method: str = "cascade
             "original_simulation_id": simulation_id,
             "new_simulation_id": new_result.simulation_id,
             "reconciliation_method": method,
-            "reconciliation_metadata": new_result.bb84_result.reconciliation_metadata,
+            "reconciliation_metadata": getattr(new_result.bb84_result, "reconciliation_metadata", new_result.bb84_result.reconciliation_info),
             "improved_qber": new_result.bb84_result.qber,
             "final_key_length": new_result.bb84_result.final_key_length
         }
         
+    except HTTPException:
+        # Re-raise HTTPException (e.g., 404) without converting to 500
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Reconciliation failed: {str(e)}")
 
@@ -522,15 +525,18 @@ async def run_advanced_privacy_amplification(simulation_id: str, method: str = "
 
         new_result = simulator.run_simulation(params)
         
+        privacy_meta = getattr(new_result.bb84_result, "privacy_amplification_metadata", new_result.bb84_result.privacy_amplification_info)
         return {
             "original_simulation_id": simulation_id,
             "new_simulation_id": new_result.simulation_id,
             "privacy_amplification_method": method,
-            "privacy_amplification_metadata": new_result.bb84_result.privacy_amplification_info,
-            "compression_ratio": new_result.bb84_result.privacy_amplification_info.get("compression_ratio", 0.0),
+            "privacy_amplification_metadata": privacy_meta,
+            "compression_ratio": privacy_meta.get("compression_ratio", 0.0),
             "final_key_length": new_result.bb84_result.final_key_length
         }
         
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Privacy amplification failed: {str(e)}")
 
@@ -567,6 +573,8 @@ async def run_decoy_state_simulation(simulation_id: str, decoy_parameters: Dict 
             "pns_attack_mitigation": new_result.bb84_result.security_metadata.get("pns_attack_mitigation", "None")
         }
         
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Decoy-state analysis failed: {str(e)}")
 

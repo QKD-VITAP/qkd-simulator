@@ -284,7 +284,7 @@ class QKDSimulator:
             })
             
         except Exception as e:
-            print(f"Advanced reconciliation failed: {e}")
+            pass
         
         return bb84_result
     
@@ -309,7 +309,7 @@ class QKDSimulator:
             })
             
         except Exception as e:
-            print(f"Advanced privacy amplification failed: {e}")
+            pass
         
         return bb84_result
     
@@ -347,7 +347,7 @@ class QKDSimulator:
                 })
             
         except Exception as e:
-            print(f"Decoy-state analysis failed: {e}")
+            pass
         
         return bb84_result
     
@@ -385,7 +385,6 @@ class QKDSimulator:
         )
         
         for i, params in enumerate(param_combinations):
-            print(f"Running simulation {i+1}/{len(param_combinations)}")
             result = self.run_simulation(params)
             results.append(result)
         
@@ -451,7 +450,6 @@ class QKDSimulator:
                 json.dump(result.to_dict(), f, indent=2)
             return True
         except Exception as e:
-            print(f"Export failed: {e}")
             return False
     
     def get_statistics(self) -> Dict:
@@ -559,7 +557,6 @@ class QKDSimulator:
         try:
             return self.secure_demo.export_communication_log(filepath)
         except Exception as e:
-            print(f"Export failed: {e}")
             return False
     
     def clear_history(self) -> None:
@@ -645,45 +642,9 @@ class QKDSimulator:
                     'key': quantum_key  # Include the actual key for the frontend
                 }
             else:
-                print(f"Warning: Simulation generated only {result.bb84_result.final_key_length} bits, using synthetic key for {key_length} bits")
-                
-                available_bits = result.bb84_result.final_key_sender
-                if len(available_bits) == 0:
-                    available_bits = [0, 1]  # Fallback to basic bits
-                
-                available_bits_str = ''.join(map(str, available_bits))
-                
-                synthetic_key = ""
-                while len(synthetic_key) < key_length:
-                    synthetic_key += available_bits_str
-                synthetic_key = synthetic_key[:key_length]
-                
-                key_data = {
-                    'key': synthetic_key,
-                    'key_length': len(synthetic_key),
-                    'generated_at': time.time(),
-                    'expires_at': time.time() + self.key_expiry_time,
-                    'simulation_id': result.simulation_id,
-                    'qber': result.bb84_result.qber,
-                    'security_level': 0.85,  # Lower security level for synthetic key
-                    'is_synthetic': True
-                }
-                
-                self.quantum_keys[user_id] = key_data
-                
                 return {
-                    'success': True,
-                    'user_id': user_id,
-                    'key_length': len(synthetic_key),
-                    'key_available': True,
-                    'expires_at': key_data['expires_at'],
-                    'security_metrics': {
-                        'qber': result.bb84_result.qber,
-                        'security_level': key_data['security_level'],
-                        'simulation_id': result.simulation_id,
-                        'is_synthetic': True
-                    },
-                    'key': synthetic_key  # Include the actual key for the frontend
+                    'success': False,
+                    'error': f'Insufficient key length: simulation generated only {result.bb84_result.final_key_length} bits, but {key_length} bits required'
                 }
                 
         except Exception as e:
@@ -806,26 +767,3 @@ class QKDSimulator:
             }
 
 
-def run_example_simulation():
-    """Run an example simulation"""
-    simulator = QKDSimulator()
-    
-    params = SimulationParameters(
-        num_qubits=500,
-        channel_length=5.0,
-        channel_attenuation=0.05,
-        attack_type=AttackType.INTERCEPT_RESEND
-    )
-    
-    result = simulator.run_simulation(params)
-    
-    print(f"Simulation completed: {result.simulation_id}")
-    print(f"Final key length: {result.bb84_result.final_key_length}")
-    print(f"QBER: {result.bb84_result.qber:.3f}")
-    print(f"Attack detected: {result.attack_detection['attack_detected']}")
-    
-    return result
-
-
-if __name__ == "__main__":
-    result = run_example_simulation()

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { BarChart3, Download, Eye, Filter, Search, Calendar, TrendingUp, AlertTriangle, RefreshCw } from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, ScatterChart, Scatter } from 'recharts';
+import { BarChart3, Download, Eye, TrendingUp, AlertTriangle, RefreshCw } from 'lucide-react';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ScatterChart, Scatter } from 'recharts';
 import qkdApi from '../api/qkdApi';
 
 const ResultsContainer = styled.div`
@@ -93,61 +93,6 @@ const SecondaryButton = styled(Button)`
   }
 `;
 
-const FilterSection = styled.div`
-  background: white;
-  border-radius: 16px;
-  padding: 24px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-  border: 1px solid #e2e8f0;
-`;
-
-const FilterGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 20px;
-  margin-bottom: 20px;
-`;
-
-const FilterGroup = styled.div``;
-
-const FilterLabel = styled.label`
-  display: block;
-  font-weight: 500;
-  color: #374151;
-  margin-bottom: 8px;
-  font-size: 14px;
-`;
-
-const FilterInput = styled.input`
-  width: 100%;
-  padding: 10px 14px;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  font-size: 14px;
-  transition: border-color 0.2s ease;
-
-  &:focus {
-    outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  }
-`;
-
-const FilterSelect = styled.select`
-  width: 100%;
-  padding: 10px 14px;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  font-size: 14px;
-  background: white;
-  transition: border-color 0.2s ease;
-
-  &:focus {
-    outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  }
-`;
 
 const ResultsGrid = styled.div`
   display: grid;
@@ -244,16 +189,7 @@ const ActionButton = styled.button`
 
 
 const Results = () => {
-  const [filters, setFilters] = useState({
-    status: 'all',
-    attack_type: 'all',
-    date_from: '',
-    date_to: '',
-    min_qber: '',
-    max_qber: ''
-  });
 
-  const [searchTerm, setSearchTerm] = useState('');
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -312,12 +248,6 @@ const Results = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const handleFilterChange = (key, value) => {
-    setFilters(prev => ({
-      ...prev,
-      [key]: value
-    }));
-  };
 
   const exportResults = () => {
     if (results.length === 0) {
@@ -373,12 +303,6 @@ Simulation Details:
     }
   };
 
-  const filteredResults = results.filter(result => {
-    if (filters.status !== 'all' && result.status !== filters.status) return false;
-    if (filters.attack_type !== 'all' && result.attack_type !== filters.attack_type) return false;
-    if (searchTerm && !result.id.toLowerCase().includes(searchTerm.toLowerCase())) return false;
-    return true;
-  });
 
   if (loading) {
     return (
@@ -452,10 +376,6 @@ Simulation Details:
             <RefreshCw size={16} />
             Refresh
           </SecondaryButton>
-          <SecondaryButton>
-            <Filter size={16} />
-            Filters
-          </SecondaryButton>
           <PrimaryButton onClick={exportResults}>
             <Download size={16} />
             Export
@@ -463,92 +383,6 @@ Simulation Details:
         </HeaderControls>
       </ResultsHeader>
 
-      <FilterSection>
-        <CardTitle>
-          <Filter size={20} />
-          Filter Results
-        </CardTitle>
-        
-        <FilterGrid>
-          <FilterGroup>
-            <FilterLabel>Status</FilterLabel>
-            <FilterSelect
-              value={filters.status}
-              onChange={(e) => handleFilterChange('status', e.target.value)}
-            >
-              <option value="all">All Status</option>
-              <option value="completed">Completed</option>
-              <option value="running">Running</option>
-              <option value="failed">Failed</option>
-            </FilterSelect>
-          </FilterGroup>
-
-          <FilterGroup>
-            <FilterLabel>Attack Type</FilterLabel>
-            <FilterSelect
-              value={filters.attack_type}
-              onChange={(e) => handleFilterChange('attack_type', e.target.value)}
-            >
-              <option value="all">All Types</option>
-              <option value="none">No Attack</option>
-              <option value="intercept_resend">Intercept-Resend</option>
-              <option value="photon_number_splitting">Photon Number Splitting</option>
-              <option value="detector_blinding">Detector Blinding</option>
-            </FilterSelect>
-          </FilterGroup>
-
-          <FilterGroup>
-            <FilterLabel>Date From</FilterLabel>
-            <FilterInput
-              type="date"
-              value={filters.date_from}
-              onChange={(e) => handleFilterChange('date_from', e.target.value)}
-            />
-          </FilterGroup>
-
-          <FilterGroup>
-            <FilterLabel>Date To</FilterLabel>
-            <FilterInput
-              type="date"
-              value={filters.date_to}
-              onChange={(e) => handleFilterChange('date_to', e.target.value)}
-            />
-          </FilterGroup>
-
-          <FilterGroup>
-            <FilterLabel>Min QBER (%)</FilterLabel>
-            <FilterInput
-              type="number"
-              placeholder="0.0"
-              value={filters.min_qber}
-              onChange={(e) => handleFilterChange('min_qber', e.target.value)}
-            />
-          </FilterGroup>
-
-          <FilterGroup>
-            <FilterLabel>Max QBER (%)</FilterLabel>
-            <FilterInput
-              type="number"
-              placeholder="10.0"
-              value={filters.max_qber}
-              onChange={(e) => handleFilterChange('max_qber', e.target.value)}
-            />
-          </FilterGroup>
-        </FilterGrid>
-
-        <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-          <div style={{ position: 'relative', flex: 1 }}>
-            <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }} />
-            <FilterInput
-              type="text"
-              placeholder="Search by simulation ID..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              style={{ paddingLeft: '40px' }}
-            />
-          </div>
-        </div>
-      </FilterSection>
 
       <ResultsGrid>
         <ResultsCard>
@@ -609,7 +443,7 @@ Simulation Details:
               </tr>
             </thead>
             <tbody>
-              {filteredResults.map(result => (
+              {results.map(result => (
                 <tr key={result.id}>
                   <Td>{result.id}</Td>
                   <Td>{result.timestamp}</Td>

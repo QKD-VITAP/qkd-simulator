@@ -25,5 +25,8 @@ export const AUTH_CONFIG = {
   GOOGLE_CLIENT_ID: import.meta.env.VITE_GOOGLE_CLIENT_ID || 'your-google-client-id-here',
   API_BASE_URL: getApiBaseUrl(),
   TOKEN_KEY: 'qkd_simulator_token',
-  TOKEN_EXPIRY_MINUTES: 30
+  TOKEN_EXPIRY_MINUTES: 30,
+  SKIP_AUTH_IN_DEV: import.meta.env.VITE_SKIP_AUTH === 'true' || 
+                    (typeof window !== 'undefined' && 
+                     (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'))
 };

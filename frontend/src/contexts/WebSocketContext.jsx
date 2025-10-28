@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
-import { useToast } from './ToastContext';
 
 const WebSocketContext = createContext();
 
@@ -18,7 +17,6 @@ export const WebSocketProvider = ({ children }) => {
   const reconnectTimeoutRef = useRef(null);
   const reconnectAttempts = useRef(0);
   const maxReconnectAttempts = 5;
-  const { addToast } = useToast();
 
   const connect = () => {
     try {
@@ -28,7 +26,6 @@ export const WebSocketProvider = ({ children }) => {
         setIsConnected(true);
         setSocket(ws);
         reconnectAttempts.current = 0;
-        addToast('Connection established', 'success', 2000);
       };
 
       ws.onmessage = (event) => {
@@ -50,8 +47,6 @@ export const WebSocketProvider = ({ children }) => {
             reconnectAttempts.current++;
             connect();
           }, delay);
-        } else {
-          addToast('Connection lost', 'error', 3000);
         }
       };
 

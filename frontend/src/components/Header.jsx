@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { Bell, Wifi, Activity, WifiOff } from 'lucide-react';
+import { Wifi, Activity, WifiOff } from 'lucide-react';
 import qkdApi from '../api/qkdApi';
 import UserProfile from './UserProfile';
 
@@ -67,36 +67,6 @@ const HeaderRight = styled.div`
   gap: 16px;
 `;
 
-const IconButton = styled.button`
-  background: none;
-  border: none;
-  padding: 8px;
-  border-radius: 8px;
-  color: #64748b;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  position: relative;
-
-  &:hover {
-    background: #f1f5f9;
-    color: #475569;
-  }
-`;
-
-const NotificationBadge = styled.span`
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  background: #ef4444;
-  color: white;
-  border-radius: 50%;
-  width: 8px;
-  height: 8px;
-  font-size: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`;
 
 
 const Header = ({ currentPage = 'Dashboard' }) => {
@@ -147,11 +117,6 @@ const Header = ({ currentPage = 'Dashboard' }) => {
       </HeaderLeft>
       
       <HeaderRight>
-        <IconButton>
-          <Bell size={20} />
-          <NotificationBadge />
-        </IconButton>
-        
         <UserProfile />
       </HeaderRight>
     </HeaderContainer>
