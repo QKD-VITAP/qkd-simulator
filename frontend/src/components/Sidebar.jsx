@@ -137,16 +137,16 @@ const Sidebar = ({ isOpen, onToggle }) => {
       description: 'Test security against attacks'
     },
     {
-      title: 'Results',
-      path: '/results',
-      icon: BarChart3,
-      description: 'View simulation results'
-    },
-    {
       title: 'Secure Messaging',
       path: '/secure-messaging',
       icon: MessageSquare,
       description: 'Quantum-secured messaging'
+    },
+    {
+      title: 'Results',
+      path: '/results',
+      icon: BarChart3,
+      description: 'View simulation results'
     },
   ];
 

@@ -681,13 +681,6 @@ const Simulation = () => {
     }
   });
 
-  const [aesDemo, setAesDemo] = useState({
-    enabled: false,
-    encryption_mode: 'GCM',
-    key_length: 256,
-    messages: []
-  });
-
   const [simulationStatus, setSimulationStatus] = useState({
     status: 'idle',
     progress: 0,
@@ -731,36 +724,6 @@ const Simulation = () => {
         ...prev.decoy_state_parameters,
         [key]: parseFloat(value) || value
       }
-    }));
-  };
-
-  const handleAesDemoChange = (key, value) => {
-    setAesDemo(prev => ({
-      ...prev,
-      [key]: value
-    }));
-  };
-
-  const addMessage = () => {
-    setAesDemo(prev => ({
-      ...prev,
-      messages: [...prev.messages, { sender: 'Alice', receiver: 'Bob', content: '' }]
-    }));
-  };
-
-  const updateMessage = (index, field, value) => {
-    setAesDemo(prev => ({
-      ...prev,
-      messages: prev.messages.map((msg, i) => 
-        i === index ? { ...msg, [field]: value } : msg
-      )
-    }));
-  };
-
-  const removeMessage = (index) => {
-    setAesDemo(prev => ({
-      ...prev,
-      messages: prev.messages.filter((_, i) => i !== index)
     }));
   };
 
@@ -885,32 +848,6 @@ const Simulation = () => {
         progress: 0,
         message: `Failed to start simulation: ${err.message}`
       });
-    }
-  };
-
-  const runAesDemo = async () => {
-    if (!aesDemo.messages.length) {
-      alert('Please add at least one message to test AES encryption');
-      return;
-    }
-    if (!lastSimulationId) {
-      alert('Run a simulation first to generate keys (simulation_id missing).');
-      return;
-    }
-
-    try {
-      await qkdApi.createSecureCommunicationDemo(
-        lastSimulationId,
-        aesDemo.encryption_mode,
-        aesDemo.key_length
-      );
-
-      const commLog = await qkdApi.runSecureCommunicationDemo(aesDemo.messages);
-      const stats = await qkdApi.getSecureCommunicationStats();
-
-      alert('AES demo completed successfully!');
-    } catch (err) {
-      alert('AES demo failed');
     }
   };
 
@@ -1206,20 +1143,6 @@ const Simulation = () => {
             </CheckboxGroup>
           </ParameterGroup>
 
-          <ParameterGroup>
-            <ParameterLabel><Key size={16} style={{ display: 'inline', marginRight: '8px' }} /> AES Integration Demo</ParameterLabel>
-            <CheckboxGroup>
-              <Checkbox
-                type="checkbox"
-                id="enable_aes_demo"
-                checked={aesDemo.enabled}
-                onChange={(e) => handleAesDemoChange('enabled', e.target.checked)}
-              />
-              <ParameterLabel htmlFor="enable_aes_demo" style={{ marginBottom: '0' }}>
-                Enable AES Demo
-              </ParameterLabel>
-            </CheckboxGroup>
-          </ParameterGroup>
         </ParameterCard>
       </SimulationGrid>
 
@@ -1238,16 +1161,6 @@ const Simulation = () => {
             <Play size={18} />
             Run Simulation
           </PrimaryButton>
-          
-          {aesDemo.enabled && aesDemo.messages.length > 0 && (
-            <SuccessButton
-              onClick={runAesDemo}
-              disabled={simulationStatus.status === 'running'}
-            >
-              <Key size={18} />
-              Run AES Demo
-            </SuccessButton>
-          )}
           
           <SecondaryButton
             onClick={resetSimulation}
@@ -1418,18 +1331,42 @@ const Simulation = () => {
                       <ProtocolDetailsSection>
                         <ProtocolLabel>Alice's Key</ProtocolLabel>
                         <KeyDisplay>
-                          {detailedResults.bb84_result.final_key_sender && detailedResults.bb84_result.final_key_sender.length > 0
-                            ? detailedResults.bb84_result.final_key_sender.slice(0, 50).join('') + (detailedResults.bb84_result.final_key_sender.length > 50 ? '...' : '')
-                            : 'N/A'}
+                          {(() => {
+                            const attackDetected = simulationResults.attackDetected || false;
+                            const keyToShow = attackDetected 
+                              ? (detailedResults.bb84_result.sifted_key_sender || [])
+                              : (detailedResults.bb84_result.final_key_sender || []);
+                            
+                            if (keyToShow.length > 0) {
+                              return keyToShow.slice(0, 50).join('') + (keyToShow.length > 50 ? '...' : '');
+                            }
+                            
+                            const fallbackKey = detailedResults.bb84_result.sifted_key_sender || detailedResults.bb84_result.final_key_sender || [];
+                            return fallbackKey.length > 0 
+                              ? fallbackKey.slice(0, 50).join('') + (fallbackKey.length > 50 ? '...' : '')
+                              : 'N/A';
+                          })()}
                         </KeyDisplay>
                       </ProtocolDetailsSection>
 
                       <ProtocolDetailsSection>
                         <ProtocolLabel>Bob's Key</ProtocolLabel>
                         <KeyDisplay>
-                          {detailedResults.bb84_result.final_key_receiver && detailedResults.bb84_result.final_key_receiver.length > 0
-                            ? detailedResults.bb84_result.final_key_receiver.slice(0, 50).join('') + (detailedResults.bb84_result.final_key_receiver.length > 50 ? '...' : '')
-                            : 'N/A'}
+                          {(() => {
+                            const attackDetected = simulationResults.attackDetected || false;
+                            const keyToShow = attackDetected 
+                              ? (detailedResults.bb84_result.sifted_key_receiver || [])
+                              : (detailedResults.bb84_result.final_key_receiver || []);
+                            
+                            if (keyToShow.length > 0) {
+                              return keyToShow.slice(0, 50).join('') + (keyToShow.length > 50 ? '...' : '');
+                            }
+                            
+                            const fallbackKey = detailedResults.bb84_result.sifted_key_receiver || detailedResults.bb84_result.final_key_receiver || [];
+                            return fallbackKey.length > 0 
+                              ? fallbackKey.slice(0, 50).join('') + (fallbackKey.length > 50 ? '...' : '')
+                              : 'N/A';
+                          })()}
                         </KeyDisplay>
                       </ProtocolDetailsSection>
                     </>
