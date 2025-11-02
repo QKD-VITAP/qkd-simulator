@@ -28,6 +28,7 @@ class BB84Result:
     sifted_key_length: int
     final_key_length: int
     qber: float
+    sifted_qber: float
     sifted_key_sender: List[int]
     sifted_key_receiver: List[int]
     final_key_sender: List[int]
@@ -36,6 +37,20 @@ class BB84Result:
     error_positions: List[int]
     reconciliation_info: Dict
     privacy_amplification_info: Dict
+    alice_random_bits: List[int] = None
+    alice_bases: List[str] = None
+    bob_bases: List[str] = None
+    bob_measurements: List[int] = None
+    
+    def __post_init__(self):
+        if self.alice_random_bits is None:
+            self.alice_random_bits = []
+        if self.alice_bases is None:
+            self.alice_bases = []
+        if self.bob_bases is None:
+            self.bob_bases = []
+        if self.bob_measurements is None:
+            self.bob_measurements = []
 
 
 class BB84Sender:
@@ -73,6 +88,12 @@ class BB84Sender:
     
     def announce_bases(self) -> List[Basis]:
         return self.bases.copy()
+    
+    def get_bases_string(self) -> List[str]:
+        return ['+' if b == Basis.COMPUTATIONAL else 'x' for b in self.bases]
+    
+    def get_raw_bits(self) -> List[int]:
+        return self.bit_values.copy()
     
     def get_sifted_key(self, matching_bases: List[int]) -> List[int]:
         return [self.bit_values[i] for i in matching_bases]
@@ -116,8 +137,7 @@ class BB84Receiver:
 
                 basis = random.choice([Basis.COMPUTATIONAL, Basis.HADAMARD])
                 
-
-                detected, detection_info = self.detector.detect_photon(qubit, basis, current_time)
+                detected, detection_info = self.detector.detect_photon(qubit, basis, current_time + i * 1e-6)
                 
                 if detected:
 
@@ -171,6 +191,20 @@ class BB84Receiver:
     
     def get_sifted_key(self, matching_bases: List[int]) -> List[int]:
         return [self.measurement_results[i] for i in matching_bases]
+    
+    def get_bases_string(self) -> List[str]:
+        result = []
+        for b in self.measurement_bases:
+            if b == Basis.COMPUTATIONAL:
+                result.append('+')
+            elif b == Basis.HADAMARD:
+                result.append('x')
+            else:
+                result.append('')
+        return result
+    
+    def get_raw_measurements(self) -> List[int]:
+        return self.measurement_results.copy()
 
 
 class BB84Protocol:
@@ -250,6 +284,8 @@ class BB84Protocol:
             if s != r
         ]
         
+        sifted_qber_value = len(error_positions) / len(sifted_key_sender) if len(sifted_key_sender) > 0 else 0.0
+        
         self.protocol_phases.append(ProtocolPhase.RECONCILIATION)
         
         reconciliation_info = self._perform_reconciliation(
@@ -270,6 +306,11 @@ class BB84Protocol:
         
         final_qber = calculate_qber(final_key_sender, final_key_receiver)
         
+        alice_random_bits = self.sender.get_raw_bits()
+        alice_bases = self.sender.get_bases_string()
+        bob_bases = self.receiver.get_bases_string()
+        bob_measurements = self.receiver.get_raw_measurements()
+        
         self.protocol_phases.append(ProtocolPhase.COMPLETED)
         self.current_phase = ProtocolPhase.COMPLETED
         
@@ -278,6 +319,7 @@ class BB84Protocol:
             sifted_key_length=len(sifted_key_sender),
             final_key_length=len(final_key_sender),
             qber=final_qber,
+            sifted_qber=sifted_qber_value,
             error_positions=error_positions,
             sifted_key_sender=sifted_key_sender,
             sifted_key_receiver=sifted_key_receiver,
@@ -285,7 +327,11 @@ class BB84Protocol:
             final_key_receiver=final_key_receiver,
             protocol_phases=self.protocol_phases,
             reconciliation_info=reconciliation_info,
-            privacy_amplification_info=privacy_amplification_info
+            privacy_amplification_info=privacy_amplification_info,
+            alice_random_bits=alice_random_bits,
+            alice_bases=alice_bases,
+            bob_bases=bob_bases,
+            bob_measurements=bob_measurements
         )
     
     def _perform_reconciliation(self, 
@@ -324,7 +370,7 @@ class BB84Protocol:
         key_length = len(key_sender)
         
         if key_length < 10:
-            final_length = max(1, key_length - 1)
+            final_length = max(1, int(key_length * 0.8))
         else:
             final_length = max(1, int(key_length * 0.98))
         

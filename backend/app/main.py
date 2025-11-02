@@ -132,7 +132,13 @@ async def run_bb84_simulation_async(request: SimulationRequest, bg_tasks: Backgr
             photon_source_efficiency=request.photon_source_efficiency,
             detector_efficiency=request.detector_efficiency,
             attack_type=AttackType(request.attack_type) if request.attack_type else AttackType.NO_ATTACK,
-            attack_parameters=request.attack_parameters or {}
+            attack_parameters=request.attack_parameters or {},
+            use_advanced_reconciliation=request.use_advanced_reconciliation,
+            reconciliation_method=request.reconciliation_method,
+            use_advanced_privacy_amplification=request.use_advanced_privacy_amplification,
+            privacy_amplification_method=request.privacy_amplification_method,
+            use_decoy_states=request.use_decoy_states,
+            decoy_state_parameters=request.decoy_state_parameters or {}
         )
         
 
@@ -260,18 +266,14 @@ async def get_simulation_status(simulation_id: str):
         task_info = background_tasks[simulation_id]
         if task_info["status"] == "completed":
             result = task_info["result"]
+            result_dict = result.to_dict()
             return SimulationStatus(
                 simulation_id=simulation_id,
                 status="completed",
                 progress=100,
-                results={
-                    "bb84_result": {
-                        "raw_key_length": result.bb84_result.raw_key_length,
-                        "sifted_key_length": result.bb84_result.sifted_key_length,
-                        "final_key_length": result.bb84_result.final_key_length,
-                        "qber": result.bb84_result.qber
-                    }
-                }
+                results={"bb84_result": result_dict.get("bb84_result", {})},
+                attack_detection=result_dict.get("attack_detection", {}),
+                simulation_time=result_dict.get("simulation_time", 0)
             )
         elif task_info["status"] == "failed":
             return SimulationStatus(
@@ -296,19 +298,14 @@ async def get_simulation_status(simulation_id: str):
 
     result = simulator.get_simulation_by_id(simulation_id)
     if result:
+        result_dict = result.to_dict()
         return SimulationStatus(
             simulation_id=simulation_id,
             status="completed",
             progress=100,
-            results={
-                "bb84_result": {
-                    "raw_key_length": result.bb84_result.raw_key_length,
-                    "sifted_key_length": result.bb84_result.sifted_key_length,
-                    "final_key_length": result.bb84_result.final_key_length,
-                    "qber": result.bb84_result.qber
-                },
-                "attack_detection": result.attack_detection
-            }
+            results={"bb84_result": result_dict.get("bb84_result", {})},
+            attack_detection=result_dict.get("attack_detection", {}),
+            simulation_time=result_dict.get("simulation_time", 0)
         )
     
     raise HTTPException(status_code=404, detail="Simulation not found")

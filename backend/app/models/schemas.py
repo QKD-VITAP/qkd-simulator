@@ -12,7 +12,7 @@ class AttackTypeEnum(str, Enum):
 
 
 class SimulationRequest(BaseModel):
-    num_qubits: int = Field(1000, ge=100, le=10000, description="Number of qubits to generate")
+    num_qubits: int = Field(1000, ge=8, le=10000, description="Number of qubits to generate")
     channel_length: float = Field(10.0, ge=0.1, le=100.0, description="Channel length in kilometers")
     channel_attenuation: float = Field(0.1, ge=0.01, le=1.0, description="Channel attenuation in dB/km")
     channel_depolarization: float = Field(0.01, ge=0.0, le=0.1, description="Channel depolarization rate")
@@ -30,8 +30,8 @@ class SimulationRequest(BaseModel):
     
     @validator('num_qubits')
     def validate_num_qubits(cls, v):
-        if v < 100:
-            raise ValueError('Number of qubits must be at least 100')
+        if v < 8:
+            raise ValueError('Number of qubits must be at least 8')
         if v > 10000:
             raise ValueError('Number of qubits must be at most 10000')
         return v
@@ -61,6 +61,8 @@ class SimulationStatus(BaseModel):
     progress: int = Field(..., ge=0, le=100, description="Progress percentage")
     results: Optional[Dict[str, Any]] = Field(None, description="Simulation results if completed")
     error: Optional[str] = Field(None, description="Error message if failed")
+    attack_detection: Optional[Dict[str, Any]] = Field(None, description="Attack detection information")
+    simulation_time: Optional[float] = Field(None, description="Simulation execution time in seconds")
 
 
 class ParameterSweepRequest(BaseModel):
@@ -90,7 +92,7 @@ class ParameterSweepRequest(BaseModel):
 
 class AttackSimulationRequest(BaseModel):
     """Request model for attack simulations"""
-    num_qubits: int = Field(1000, ge=100, le=10000, description="Number of qubits")
+    num_qubits: int = Field(1000, ge=8, le=10000, description="Number of qubits")
     channel_length: float = Field(10.0, ge=0.1, le=100.0, description="Channel length in kilometers")
     channel_attenuation: float = Field(0.1, ge=0.01, le=1.0, description="Channel attenuation in dB/km")
     attack_type: AttackTypeEnum = Field(..., description="Type of attack to simulate")

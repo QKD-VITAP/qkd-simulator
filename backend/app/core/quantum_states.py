@@ -168,7 +168,7 @@ class PhotonSource:
         self.wavelength_stability = wavelength_stability
         
 
-        self.mean_photons_per_pulse = 0.1  # Typical for QKD
+        self.mean_photons_per_pulse = 3.5
         
     def emit_photon(self, state: QubitState) -> Optional[QubitState]:
         """
@@ -181,21 +181,17 @@ class PhotonSource:
         if random.random() > self.efficiency:
             return None
         
-
         photon_count = np.random.poisson(self.mean_photons_per_pulse)
         
-        if photon_count == 0:
-            return None
-        elif photon_count == 1:
-
+        if photon_count == 1:
             return self._apply_source_imperfections(state)
-        else:
-
-
+        elif photon_count > 1:
             imperfect_state = self._apply_source_imperfections(state)
             imperfect_state.is_multi_photon = True
             imperfect_state.photon_count = photon_count
             return imperfect_state
+        else:
+            return None
     
     def _apply_source_imperfections(self, state: QubitState) -> QubitState:
 

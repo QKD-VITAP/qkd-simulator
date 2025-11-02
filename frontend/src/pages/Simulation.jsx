@@ -30,21 +30,29 @@ const AdvancedFeaturesGrid = styled.div`
 `;
 
 const ParameterCard = styled.div`
-  background: white;
+  background: linear-gradient(to bottom, #ffffff, #f8fafc);
   border-radius: 16px;
   padding: 24px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-  border: 1px solid #e2e8f0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(59, 130, 246, 0.05);
+  border: 1px solid rgba(59, 130, 246, 0.1);
+  transition: all 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 4px 16px rgba(59, 130, 246, 0.15), 0 0 0 1px rgba(59, 130, 246, 0.2);
+    transform: translateY(-2px);
+  }
 `;
 
 const CardTitle = styled.h3`
-  font-size: 18px;
-  font-weight: 600;
+  font-size: 20px;
+  font-weight: 700;
   color: #1e293b;
   margin: 0 0 24px 0;
   display: flex;
   align-items: center;
   gap: 12px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid rgba(59, 130, 246, 0.1);
 `;
 
 const ParameterGroup = styled.div`
@@ -62,31 +70,45 @@ const ParameterLabel = styled.label`
 const ParameterInput = styled.input`
   width: 100%;
   padding: 12px 16px;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
   font-size: 14px;
-  transition: border-color 0.2s ease;
+  background: #ffffff;
+  transition: all 0.2s ease;
+  font-weight: 500;
+
+  &:hover {
+    border-color: #93c5fd;
+  }
 
   &:focus {
     outline: none;
     border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+    background: #fefefe;
   }
 `;
 
 const ParameterSelect = styled.select`
   width: 100%;
   padding: 12px 16px;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
   font-size: 14px;
-  background: white;
-  transition: border-color 0.2s ease;
+  background: #ffffff;
+  transition: all 0.2s ease;
+  font-weight: 500;
+  cursor: pointer;
+
+  &:hover {
+    border-color: #93c5fd;
+  }
 
   &:focus {
     outline: none;
     border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+    background: #fefefe;
   }
 `;
 
@@ -192,31 +214,73 @@ const Button = styled.button`
 `;
 
 const PrimaryButton = styled(Button)`
-  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
+  border: none;
+  position: relative;
+  overflow: hidden;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+  }
 
   &:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+
+    &::before {
+      width: 300px;
+      height: 300px;
+    }
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0px);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
   }
 `;
 
 const SecondaryButton = styled(Button)`
-  background: #f1f5f9;
+  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
   color: #475569;
+  font-weight: 600;
 
   &:hover:not(:disabled) {
-    background: #e2e8f0;
+    background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0px);
   }
 `;
 
 const SuccessButton = styled(Button)`
   background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   color: white;
+  font-weight: 700;
 
   &:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+    box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+    background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0px);
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
   }
 `;
 
@@ -226,6 +290,12 @@ const StatusCard = styled.div`
   padding: 24px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
   border: 1px solid #e2e8f0;
+  transition: all 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+  }
 `;
 
 const StatusHeader = styled.div`
@@ -239,16 +309,19 @@ const StatusIndicator = styled.div`
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 16px;
-  border-radius: 20px;
+  padding: 10px 20px;
+  border-radius: 25px;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
   background: ${props => {
     switch (props.$status) {
-      case 'running': return '#dbeafe';
-      case 'completed': return '#dcfce7';
-      case 'failed': return '#fee2e2';
-      default: return '#f1f5f9';
+      case 'running': return 'linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%)';
+      case 'completed': return 'linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%)';
+      case 'failed': return 'linear-gradient(135deg, #fee2e2 0%, #fecaca 100%)';
+      default: return 'linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%)';
     }
   }};
   color: ${props => {
@@ -259,56 +332,89 @@ const StatusIndicator = styled.div`
       default: return '#64748b';
     }
   }};
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    transition: left 0.5s;
+  }
+
+  &:hover::before {
+    left: 100%;
+  }
 `;
 
 const ProgressBar = styled.div`
   width: 100%;
-  height: 8px;
-  background: #e2e8f0;
-  border-radius: 4px;
+  height: 12px;
+  background: linear-gradient(90deg, #e2e8f0 0%, #cbd5e1 100%);
+  border-radius: 10px;
   overflow: hidden;
   margin: 16px 0;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+  position: relative;
 `;
 
 const ProgressFill = styled.div`
   height: 100%;
-  background: linear-gradient(90deg, #3b82f6 0%, #1d4ed8 100%);
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
   width: ${props => props.$progress}%;
   transition: width 0.3s ease;
-`;
+  border-radius: 10px;
+  position: relative;
+  overflow: hidden;
 
-const Header = styled.div`
-  background: #f8fafc;
-  padding: 24px;
-  border-radius: 16px;
-  margin-bottom: 24px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-  border: 1px solid #e2e8f0;
-`;
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    animation: progress-shine 1.5s infinite;
+  }
 
-const HeaderTitle = styled.h1`
-  font-size: 28px;
-  font-weight: 700;
-  color: #1e293b;
-  margin: 0 0 8px 0;
-`;
-
-const HeaderSubtitle = styled.p`
-  font-size: 16px;
-  color: #475569;
-  margin: 0;
+  @keyframes progress-shine {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
 `;
 
 const InfoBox = styled.div`
-  background: #f0f9eb;
+  background: linear-gradient(135deg, #f0f9eb 0%, #dcfce7 100%);
   border: 1px solid #a7f3d0;
   border-radius: 12px;
-  padding: 16px;
+  padding: 20px;
   margin-bottom: 24px;
   font-size: 14px;
   color: #065f46;
   line-height: 1.6;
-  border-left: 4px solid #4ade80;
+  border-left: 5px solid #4ade80;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.1);
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '✨';
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 20px;
+    opacity: 0.3;
+  }
+
+  animation: info-pulse 3s infinite;
+  @keyframes info-pulse {
+    0%, 100% { box-shadow: 0 2px 8px rgba(16, 185, 129, 0.1); }
+    50% { box-shadow: 0 4px 16px rgba(16, 185, 129, 0.2); }
+  }
 `;
 
 
@@ -320,6 +426,193 @@ const DetailedResultsCard = styled.div`
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
   border: 1px solid #e2e8f0;
   margin-top: 24px;
+  transition: all 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+  }
+`;
+
+const QKDResultsCard = styled.div`
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e2e8f0;
+  margin-top: 24px;
+  transition: all 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+  }
+`;
+
+const ResultsHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #e2e8f0;
+`;
+
+const ResultsTitle = styled.h2`
+  font-size: 24px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+`;
+
+const StatusBadge = styled.div`
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  background: ${props => props.$isSecure ? '#dcfce7' : '#fee2e2'};
+  color: ${props => props.$isSecure ? '#166534' : '#dc2626'};
+  display: flex;
+  align-items: center;
+  gap: 6px;
+`;
+
+const SecurityStatus = styled.div`
+  font-size: 18px;
+  font-weight: 600;
+  color: ${props => props.$isSecure ? '#166534' : '#dc2626'};
+  margin: 16px 0;
+`;
+
+const ErrorRate = styled.div`
+  font-size: 16px;
+  color: #64748b;
+  margin-bottom: 8px;
+`;
+
+const TabsContainer = styled.div`
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #e2e8f0;
+`;
+
+const Tab = styled.button`
+  padding: 12px 24px;
+  border: none;
+  background: transparent;
+  font-size: 16px;
+  font-weight: 600;
+  color: ${props => props.$active ? '#3b82f6' : '#64748b'};
+  cursor: pointer;
+  border-bottom: 3px solid ${props => props.$active ? '#3b82f6' : 'transparent'};
+  margin-bottom: -2px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    color: #3b82f6;
+  }
+`;
+
+const TabContent = styled.div`
+  padding: 20px 0;
+`;
+
+const SummaryGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+`;
+
+const SummaryItem = styled.div`
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  padding: 20px;
+  border-radius: 12px;
+  border: 2px solid #e2e8f0;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+  }
+
+  &:hover {
+    border-color: rgba(102, 126, 234, 0.3);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
+    transform: translateY(-2px);
+
+    &::before {
+      transform: scaleX(1);
+    }
+  }
+`;
+
+const SummaryLabel = styled.div`
+  font-size: 12px;
+  color: #64748b;
+  margin-bottom: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+`;
+
+const SummaryValue = styled.div`
+  font-size: 28px;
+  font-weight: 800;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  transition: transform 0.2s ease;
+
+  ${SummaryItem}:hover & {
+    transform: scale(1.05);
+  }
+`;
+
+const ProtocolDetailsSection = styled.div`
+  margin-bottom: 24px;
+`;
+
+const ProtocolLabel = styled.div`
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 8px;
+`;
+
+const ProtocolValue = styled.div`
+  font-size: 14px;
+  color: #1e293b;
+  background: #f8fafc;
+  padding: 12px;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+  font-family: 'Courier New', monospace;
+  word-break: break-all;
+  line-height: 1.6;
+`;
+
+const KeyDisplay = styled.div`
+  font-size: 14px;
+  color: #1e293b;
+  background: #f8fafc;
+  padding: 12px;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+  font-family: 'Courier New', monospace;
+  word-break: break-all;
+  line-height: 1.6;
 `;
 
 const ResultsGrid = styled.div`
@@ -354,12 +647,17 @@ const ResultLabel = styled.div`
 
 const Simulation = () => {
   const [parameters, setParameters] = useState({
-    num_qubits: 1000,
+    num_qubits: 8,
     channel_length: 10.0,
     channel_attenuation: 0.1,
     channel_depolarization: 0.01,
     photon_source_efficiency: 0.8,
-    detector_efficiency: 0.8
+    detector_efficiency: 0.8,
+    wavelength: 800,
+    temperature: 20,
+    detector_dark_count_rate: 100,
+    detector_dead_time: 0.001,
+    clock_frequency: 1.0
   });
 
   const [attackConfig, setAttackConfig] = useState({
@@ -373,7 +671,7 @@ const Simulation = () => {
   const [advancedFeatures, setAdvancedFeatures] = useState({
     use_advanced_reconciliation: true,
     reconciliation_method: 'cascade',
-    use_advanced_privacy_amplification: true,
+    use_advanced_privacy_amplification: false,
     privacy_amplification_method: 'toeplitz',
     use_decoy_states: false,
     decoy_state_parameters: {
@@ -402,8 +700,8 @@ const Simulation = () => {
     attackDetected: false
   });
   const [lastSimulationId, setLastSimulationId] = useState(null);
-  
   const [detailedResults, setDetailedResults] = useState(null);
+  const [activeTab, setActiveTab] = useState('summary');
 
   const handleParameterChange = (key, value) => {
     setParameters(prev => ({
@@ -484,6 +782,12 @@ const Simulation = () => {
         ...parameters,
         attack_type: attackConfig.enabled ? attackConfig.type : 'no_attack',
         attack_parameters: attackConfig.enabled ? attackConfig.parameters : {},
+        use_advanced_reconciliation: advancedFeatures.use_advanced_reconciliation,
+        reconciliation_method: advancedFeatures.reconciliation_method,
+        use_advanced_privacy_amplification: advancedFeatures.use_advanced_privacy_amplification,
+        privacy_amplification_method: advancedFeatures.privacy_amplification_method,
+        use_decoy_states: advancedFeatures.use_decoy_states,
+        decoy_state_parameters: advancedFeatures.decoy_state_parameters
       };
       const response = await qkdApi.runSimulationAsync(simulationRequest);
       
@@ -497,10 +801,11 @@ const Simulation = () => {
               let qber = 0;
               let keyLength = 0;
               let attackDetected = false;
-              if (status.results && status.results.bb84_result) {
-                qber = status.results.bb84_result.qber || 0;
-                keyLength = status.results.bb84_result.final_key_length || 0;
-                attackDetected = status.results.attack_detection?.attack_detected || false;
+              const bb84Result = status.results?.bb84_result || status.results;
+              if (bb84Result) {
+                qber = bb84Result.sifted_qber || bb84Result.qber || 0;
+                keyLength = bb84Result.final_key_length || 0;
+                attackDetected = status.attack_detection?.attack_detected || false;
               } else if (response.results_summary) {
                 qber = response.results_summary.qber || 0;
                 keyLength = response.results_summary.final_key_length || 0;
@@ -512,12 +817,27 @@ const Simulation = () => {
                 attackDetected: attackDetected
               });
               
-              updateDetailedResults({
-                ...status.results,
+              let bb84Data = {};
+              if (status.results) {
+                if (status.results.bb84_result) {
+                  bb84Data = status.results.bb84_result;
+                } else if (status.results.raw_key_length !== undefined) {
+                  bb84Data = status.results;
+                }
+              } else if (bb84Result) {
+                bb84Data = bb84Result;
+              }
+              
+              const detailed = {
+                bb84_result: bb84Data,
+                attack_detection: status.attack_detection || {},
+                simulation_time: status.simulation_time || 0,
                 parameters: parameters,
                 attackConfig: attackConfig,
                 advancedFeatures: advancedFeatures
-              });
+              };
+              
+              updateDetailedResults(detailed);
               
               setSimulationStatus({
                 status: 'completed',
@@ -605,28 +925,11 @@ const Simulation = () => {
       keyLength: 0,
       attackDetected: false
     });
+    setActiveTab('summary');
   };
 
   return (
     <SimulationContainer>
-      <Header>
-        <HeaderTitle>Quantum Key Distribution Simulator</HeaderTitle>
-        <HeaderSubtitle>Run BB84 protocol simulations with advanced security features</HeaderSubtitle>
-      </Header>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
       <SimulationGrid>
         <ParameterCard>
           <CardTitle>
@@ -635,15 +938,15 @@ const Simulation = () => {
           </CardTitle>
           
           <ParameterGroup>
-            <ParameterLabel>Number of Qubits</ParameterLabel>
-            <ParameterInput
-              type="number"
+            <ParameterLabel>Number of Bits to Transmit</ParameterLabel>
+            <ParameterSelect
               value={parameters.num_qubits}
-              onChange={(e) => handleParameterChange('num_qubits', e.target.value)}
-              min="100"
-              max="10000"
-              step="100"
-            />
+              onChange={(e) => handleParameterChange('num_qubits', parseInt(e.target.value))}
+            >
+              <option value={8}>8</option>
+              <option value={32}>32</option>
+              <option value={64}>64</option>
+            </ParameterSelect>
           </ParameterGroup>
 
           <ParameterGroup>
@@ -688,9 +991,9 @@ const Simulation = () => {
               type="number"
               value={parameters.photon_source_efficiency}
               onChange={(e) => handleParameterChange('photon_source_efficiency', e.target.value)}
-              min="0.1"
-              max="1.0"
-              step="0.1"
+              min="0.5"
+              max="0.95"
+              step="0.05"
             />
           </ParameterGroup>
 
@@ -701,8 +1004,8 @@ const Simulation = () => {
               value={parameters.detector_efficiency}
               onChange={(e) => handleParameterChange('detector_efficiency', e.target.value)}
               min="0.1"
-              max="1.0"
-              step="0.1"
+              max="0.95"
+              step="0.05"
             />
           </ParameterGroup>
 
@@ -835,239 +1138,90 @@ const Simulation = () => {
               </AttackSection>
             </>
           )}
-        </ParameterCard>
-      </SimulationGrid>
-
-      <AdvancedFeaturesGrid>
-        <ParameterCard>
-          <CardTitle>
-            <Cpu size={20} />
-            Advanced Reconciliation
-          </CardTitle>
           
-          <CheckboxGroup>
-            <Checkbox
-              type="checkbox"
-              id="use_advanced_reconciliation"
-              checked={advancedFeatures.use_advanced_reconciliation}
-              onChange={(e) => handleAdvancedFeatureChange('use_advanced_reconciliation', e.target.checked)}
-            />
-            <ParameterLabel htmlFor="use_advanced_reconciliation">
-              Enable Advanced Reconciliation
-            </ParameterLabel>
-          </CheckboxGroup>
-
-          {advancedFeatures.use_advanced_reconciliation && (
-            <ParameterGroup>
-              <ParameterLabel>Reconciliation Method</ParameterLabel>
+          <ParameterGroup>
+            <ParameterLabel><Cpu size={16} style={{ display: 'inline', marginRight: '8px' }} /> Advanced Reconciliation</ParameterLabel>
+            <CheckboxGroup>
+              <Checkbox
+                type="checkbox"
+                id="use_advanced_reconciliation"
+                checked={advancedFeatures.use_advanced_reconciliation}
+                onChange={(e) => handleAdvancedFeatureChange('use_advanced_reconciliation', e.target.checked)}
+              />
+              <ParameterLabel htmlFor="use_advanced_reconciliation" style={{ marginBottom: '0' }}>
+                Enable Advanced Reconciliation
+              </ParameterLabel>
+            </CheckboxGroup>
+            {advancedFeatures.use_advanced_reconciliation && (
               <ParameterSelect
                 value={advancedFeatures.reconciliation_method}
                 onChange={(e) => handleAdvancedFeatureChange('reconciliation_method', e.target.value)}
+                style={{ marginTop: '8px' }}
               >
                 <option value="cascade">Cascade Protocol</option>
                 <option value="ldpc">LDPC Codes</option>
                 <option value="hybrid">Hybrid Method</option>
               </ParameterSelect>
-            </ParameterGroup>
-          )}
-        </ParameterCard>
+            )}
+          </ParameterGroup>
 
-        <ParameterCard>
-          <CardTitle>
-            <Lock size={20} />
-            Privacy Amplification
-          </CardTitle>
-          
-          <CheckboxGroup>
-            <Checkbox
-              type="checkbox"
-              id="use_advanced_privacy_amplification"
-              checked={advancedFeatures.use_advanced_privacy_amplification}
-              onChange={(e) => handleAdvancedFeatureChange('use_advanced_privacy_amplification', e.target.checked)}
-            />
-            <ParameterLabel htmlFor="use_advanced_privacy_amplification">
-              Enable Advanced Privacy Amplification
-            </ParameterLabel>
-          </CheckboxGroup>
-
-          {advancedFeatures.use_advanced_privacy_amplification && (
-            <ParameterGroup>
-              <ParameterLabel>Privacy Amplification Method</ParameterLabel>
+          <ParameterGroup>
+            <ParameterLabel><Lock size={16} style={{ display: 'inline', marginRight: '8px' }} /> Privacy Amplification</ParameterLabel>
+            <CheckboxGroup>
+              <Checkbox
+                type="checkbox"
+                id="use_advanced_privacy_amplification"
+                checked={advancedFeatures.use_advanced_privacy_amplification}
+                onChange={(e) => handleAdvancedFeatureChange('use_advanced_privacy_amplification', e.target.checked)}
+              />
+              <ParameterLabel htmlFor="use_advanced_privacy_amplification" style={{ marginBottom: '0' }}>
+                Enable Advanced Privacy Amplification
+              </ParameterLabel>
+            </CheckboxGroup>
+            {advancedFeatures.use_advanced_privacy_amplification && (
               <ParameterSelect
                 value={advancedFeatures.privacy_amplification_method}
                 onChange={(e) => handleAdvancedFeatureChange('privacy_amplification_method', e.target.value)}
+                style={{ marginTop: '8px' }}
               >
                 <option value="toeplitz">Toeplitz Hashing</option>
                 <option value="universal">Universal Hashing</option>
                 <option value="hybrid">Hybrid Method</option>
               </ParameterSelect>
-            </ParameterGroup>
-          )}
+            )}
+          </ParameterGroup>
+
+          <ParameterGroup>
+            <ParameterLabel><Database size={16} style={{ display: 'inline', marginRight: '8px' }} /> Decoy States</ParameterLabel>
+            <CheckboxGroup>
+              <Checkbox
+                type="checkbox"
+                id="use_decoy_states"
+                checked={advancedFeatures.use_decoy_states}
+                onChange={(e) => handleAdvancedFeatureChange('use_decoy_states', e.target.checked)}
+              />
+              <ParameterLabel htmlFor="use_decoy_states" style={{ marginBottom: '0' }}>
+                Enable Decoy States
+              </ParameterLabel>
+            </CheckboxGroup>
+          </ParameterGroup>
+
+          <ParameterGroup>
+            <ParameterLabel><Key size={16} style={{ display: 'inline', marginRight: '8px' }} /> AES Integration Demo</ParameterLabel>
+            <CheckboxGroup>
+              <Checkbox
+                type="checkbox"
+                id="enable_aes_demo"
+                checked={aesDemo.enabled}
+                onChange={(e) => handleAesDemoChange('enabled', e.target.checked)}
+              />
+              <ParameterLabel htmlFor="enable_aes_demo" style={{ marginBottom: '0' }}>
+                Enable AES Demo
+              </ParameterLabel>
+            </CheckboxGroup>
+          </ParameterGroup>
         </ParameterCard>
-
-        <ParameterCard>
-          <CardTitle>
-            <Database size={20} />
-            Decoy States
-          </CardTitle>
-          
-          <CheckboxGroup>
-            <Checkbox
-              type="checkbox"
-              id="use_decoy_states"
-              checked={advancedFeatures.use_decoy_states}
-              onChange={(e) => handleAdvancedFeatureChange('use_decoy_states', e.target.checked)}
-            />
-            <ParameterLabel htmlFor="use_decoy_states">
-              Enable Decoy States
-            </ParameterLabel>
-          </CheckboxGroup>
-
-          {advancedFeatures.use_decoy_states && (
-            <AdvancedSection>
-              <AdvancedTitle>
-                <Database size={16} />
-                Decoy State Parameters
-              </AdvancedTitle>
-              
-              <ParameterGroup>
-                <ParameterLabel>Signal Intensity</ParameterLabel>
-                <ParameterInput
-                  type="number"
-                  value={advancedFeatures.decoy_state_parameters.signal_intensity}
-                  onChange={(e) => handleDecoyStateChange('signal_intensity', e.target.value)}
-                  min="0.1"
-                  max="1.0"
-                  step="0.1"
-                />
-              </ParameterGroup>
-
-              <ParameterGroup>
-                <ParameterLabel>Decoy Intensity</ParameterLabel>
-                <ParameterInput
-                  type="number"
-                  value={advancedFeatures.decoy_state_parameters.decoy_intensity}
-                  onChange={(e) => handleDecoyStateChange('decoy_intensity', e.target.value)}
-                  min="0.0"
-                  max="0.5"
-                  step="0.01"
-                />
-              </ParameterGroup>
-
-              <ParameterGroup>
-                <ParameterLabel>Vacuum Intensity</ParameterLabel>
-                <ParameterInput
-                  type="number"
-                  value={advancedFeatures.decoy_state_parameters.vacuum_intensity}
-                  onChange={(e) => handleDecoyStateChange('vacuum_intensity', e.target.value)}
-                  min="0.0"
-                  max="0.1"
-                  step="0.01"
-                />
-              </ParameterGroup>
-            </AdvancedSection>
-          )}
-        </ParameterCard>
-
-        <ParameterCard>
-          <CardTitle>
-            <Key size={20} />
-            AES Integration Demo
-          </CardTitle>
-          
-          <CheckboxGroup>
-            <Checkbox
-              type="checkbox"
-              id="enable_aes_demo"
-              checked={aesDemo.enabled}
-              onChange={(e) => handleAesDemoChange('enabled', e.target.checked)}
-            />
-            <ParameterLabel htmlFor="enable_aes_demo">
-              Enable AES Demo
-            </ParameterLabel>
-          </CheckboxGroup>
-
-          {aesDemo.enabled && (
-            <AdvancedSection>
-              <AdvancedTitle>
-                <Key size={16} />
-                AES Configuration
-              </AdvancedTitle>
-              
-              <ParameterGroup>
-                <ParameterLabel>Encryption Mode</ParameterLabel>
-                <ParameterSelect
-                  value={aesDemo.encryption_mode}
-                  onChange={(e) => handleAesDemoChange('encryption_mode', e.target.value)}
-                >
-                  <option value="GCM">GCM (Authenticated)</option>
-                  <option value="CBC">CBC</option>
-                  <option value="CTR">CTR</option>
-                </ParameterSelect>
-              </ParameterGroup>
-
-              <ParameterGroup>
-                <ParameterLabel>Key Length (bits)</ParameterLabel>
-                <ParameterSelect
-                  value={aesDemo.key_length}
-                  onChange={(e) => handleAesDemoChange('key_length', parseInt(e.target.value))}
-                >
-                  <option value={128}>128 bits</option>
-                  <option value={192}>192 bits</option>
-                  <option value={256}>256 bits</option>
-                </ParameterSelect>
-              </ParameterGroup>
-
-              <ParameterGroup>
-                <ParameterLabel>Test Messages</ParameterLabel>
-                                 <SmallButton onClick={addMessage} style={{ marginBottom: '12px' }}>
-                   + Add Message
-                 </SmallButton>
-                
-                {aesDemo.messages.map((msg, index) => (
-                  <div key={index} style={{ 
-                    border: '1px solid #e2e8f0', 
-                    borderRadius: '8px', 
-                    padding: '12px', 
-                    marginBottom: '12px',
-                    background: '#f8fafc'
-                  }}>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '8px' }}>
-                      <ParameterInput
-                        placeholder="Sender"
-                        value={msg.sender}
-                        onChange={(e) => updateMessage(index, 'sender', e.target.value)}
-                      />
-                      <ParameterInput
-                        placeholder="Receiver"
-                        value={msg.receiver}
-                        onChange={(e) => updateMessage(index, 'receiver', e.target.value)}
-                      />
-                    </div>
-                    <ParameterInput
-                      placeholder="Message content"
-                      value={msg.content}
-                      onChange={(e) => updateMessage(index, 'content', e.target.value)}
-                    />
-                                         <SmallButton 
-                       onClick={() => removeMessage(index)}
-                       style={{ 
-                         marginTop: '8px', 
-                         background: '#ef4444', 
-                         color: 'white',
-                         padding: '4px 8px',
-                         fontSize: '12px'
-                       }}
-                     >
-                       Remove
-                     </SmallButton>
-                  </div>
-                ))}
-              </ParameterGroup>
-            </AdvancedSection>
-          )}
-        </ParameterCard>
-      </AdvancedFeaturesGrid>
+      </SimulationGrid>
 
       <SimulationControls>
         <CardTitle>
@@ -1135,25 +1289,170 @@ const Simulation = () => {
         )}
         
         {simulationStatus.status === 'completed' && (
-          <>
-            <div style={{ 
-              background: '#dcfce7', 
-              padding: '16px', 
-              borderRadius: '8px',
-              color: '#166534',
-              marginBottom: '20px'
-            }}>
-              <strong>Simulation Results Summary:</strong>
-              <div style={{ marginTop: '8px' }}>
-                <div><strong>QBER:</strong> {(simulationResults.qber * 100).toFixed(2)}%</div>
-                <div><strong>Final Key Length:</strong> {simulationResults.keyLength} bits</div>
-                <div><strong>Attack Detected:</strong> {simulationResults.attackDetected ? 'Yes' : 'No'}</div>
-                <div><strong>Success Rate:</strong> {parameters.num_qubits > 0 ? ((simulationResults.keyLength / parameters.num_qubits) * 100).toFixed(1) : 0}%</div>
-              </div>
-              
-              
+          <QKDResultsCard>
+            <ResultsHeader>
+              <ResultsTitle>QKD Results</ResultsTitle>
+              <StatusBadge $isSecure={!simulationResults.attackDetected}>
+                {simulationResults.attackDetected ? (
+                  <>
+                    <AlertTriangle size={16} />
+                    Compromised
+                  </>
+                ) : (
+                  <>
+                    <ShieldCheck size={16} />
+                    Secure
+                  </>
+                )}
+              </StatusBadge>
+            </ResultsHeader>
+
+            <SecurityStatus $isSecure={!simulationResults.attackDetected}>
+              {simulationResults.attackDetected 
+                ? 'Eavesdropper Detected!' 
+                : 'Secure Key Established'}
+            </SecurityStatus>
+
+            <ErrorRate>
+              Error rate: {(simulationResults.qber * 100).toFixed(2)}%
+            </ErrorRate>
+
+            <TabsContainer>
+              <Tab 
+                $active={activeTab === 'summary'} 
+                onClick={() => setActiveTab('summary')}
+              >
+                Summary
+              </Tab>
+              <Tab 
+                $active={activeTab === 'details'} 
+                onClick={() => setActiveTab('details')}
+              >
+                Protocol Details
+              </Tab>
+            </TabsContainer>
+
+            <TabContent>
+              {activeTab === 'summary' && (
+                <div>
+                  <SummaryGrid>
+                    <SummaryItem>
+                      <SummaryLabel>Raw Key Length</SummaryLabel>
+                      <SummaryValue>{parameters.num_qubits}</SummaryValue>
+                    </SummaryItem>
+                    <SummaryItem>
+                      <SummaryLabel>Sifted Key Length</SummaryLabel>
+                      <SummaryValue>
+                        {detailedResults?.bb84_result?.sifted_key_length || Math.floor(parameters.num_qubits * 0.5)}
+                      </SummaryValue>
+                    </SummaryItem>
+                    <SummaryItem>
+                      <SummaryLabel>Sifting Efficiency</SummaryLabel>
+                      <SummaryValue>
+                        {((detailedResults?.bb84_result?.sifted_key_length || Math.floor(parameters.num_qubits * 0.5)) / parameters.num_qubits * 100).toFixed(1)}%
+                      </SummaryValue>
+                    </SummaryItem>
+                    <SummaryItem>
+                      <SummaryLabel>Final Key Length</SummaryLabel>
+                      <SummaryValue>
+                        {simulationResults.keyLength} bits
+                      </SummaryValue>
+                    </SummaryItem>
+                  </SummaryGrid>
+                  
+                  <ProtocolDetailsSection>
+                    <ProtocolLabel>Security Check</ProtocolLabel>
+                    <ProtocolValue>
+                      {simulationResults.attackDetected 
+                        ? 'Eavesdropping detected - Key compromised' 
+                        : 'No eavesdropping detected - Key secure'}
+                    </ProtocolValue>
+                  </ProtocolDetailsSection>
+
+                  <div style={{ marginTop: '16px', color: '#64748b', fontSize: '14px' }}>
+                    Simulation completed in {(detailedResults?.simulation_time || 0.1).toFixed(2)}ms
+                  </div>
+                </div>
+              )}
+
+              {activeTab === 'details' && (
+                <div>
+                  {detailedResults?.bb84_result ? (
+                    <>
+                      <ProtocolDetailsSection>
+                        <ProtocolLabel>Alice's Random Bits</ProtocolLabel>
+                        <ProtocolValue>
+                          {detailedResults.bb84_result.alice_random_bits && detailedResults.bb84_result.alice_random_bits.length > 0
+                            ? detailedResults.bb84_result.alice_random_bits.slice(0, 100).join(' ') + (detailedResults.bb84_result.alice_random_bits.length > 100 ? '...' : '')
+                            : 'N/A'}
+                        </ProtocolValue>
+                      </ProtocolDetailsSection>
+
+                      <ProtocolDetailsSection>
+                        <ProtocolLabel>Alice's Bases</ProtocolLabel>
+                        <ProtocolValue>
+                          {detailedResults.bb84_result.alice_bases && detailedResults.bb84_result.alice_bases.length > 0
+                            ? detailedResults.bb84_result.alice_bases.slice(0, 100).join(' ') + (detailedResults.bb84_result.alice_bases.length > 100 ? '...' : '')
+                            : 'N/A'}
+                        </ProtocolValue>
+                      </ProtocolDetailsSection>
+
+                      <ProtocolDetailsSection>
+                        <ProtocolLabel>Bob's Bases</ProtocolLabel>
+                        <ProtocolValue>
+                          {detailedResults.bb84_result.bob_bases && detailedResults.bb84_result.bob_bases.length > 0
+                            ? detailedResults.bb84_result.bob_bases.slice(0, 100).join(' ') + (detailedResults.bb84_result.bob_bases.length > 100 ? '...' : '')
+                            : 'N/A'}
+                        </ProtocolValue>
+                      </ProtocolDetailsSection>
+
+                      <ProtocolDetailsSection>
+                        <ProtocolLabel>Bob's Measurements</ProtocolLabel>
+                        <ProtocolValue>
+                          {detailedResults.bb84_result.bob_measurements && detailedResults.bb84_result.bob_measurements.length > 0
+                            ? detailedResults.bb84_result.bob_measurements.slice(0, 100).join(' ') + (detailedResults.bb84_result.bob_measurements.length > 100 ? '...' : '')
+                            : 'N/A'}
+                        </ProtocolValue>
+                      </ProtocolDetailsSection>
+
+                      <ProtocolDetailsSection>
+                        <ProtocolLabel>Alice's Key</ProtocolLabel>
+                        <KeyDisplay>
+                          {detailedResults.bb84_result.final_key_sender && detailedResults.bb84_result.final_key_sender.length > 0
+                            ? detailedResults.bb84_result.final_key_sender.slice(0, 50).join('') + (detailedResults.bb84_result.final_key_sender.length > 50 ? '...' : '')
+                            : 'N/A'}
+                        </KeyDisplay>
+                      </ProtocolDetailsSection>
+
+                      <ProtocolDetailsSection>
+                        <ProtocolLabel>Bob's Key</ProtocolLabel>
+                        <KeyDisplay>
+                          {detailedResults.bb84_result.final_key_receiver && detailedResults.bb84_result.final_key_receiver.length > 0
+                            ? detailedResults.bb84_result.final_key_receiver.slice(0, 50).join('') + (detailedResults.bb84_result.final_key_receiver.length > 50 ? '...' : '')
+                            : 'N/A'}
+                        </KeyDisplay>
+                      </ProtocolDetailsSection>
+                    </>
+                  ) : (
+                    <div style={{ color: '#64748b', padding: '20px', textAlign: 'center' }}>
+                      Protocol details not available. Please run a simulation first.
+                    </div>
+                  )}
+
+                  <div style={{ marginTop: '16px', color: '#64748b', fontSize: '14px' }}>
+                    Simulation completed in {(detailedResults?.simulation_time || 0.1).toFixed(2)}ms
+                  </div>
+                </div>
+              )}
+            </TabContent>
+
+            <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'center' }}>
+              <SecondaryButton onClick={resetSimulation}>
+                <Settings size={18} />
+                Reset Simulation
+              </SecondaryButton>
             </div>
-          </>
+          </QKDResultsCard>
         )}
       </StatusCard>
 
