@@ -477,19 +477,33 @@ const Results = () => {
         const data = await qkdApi.getSimulationHistory();
         
         if (data.simulations) {
-          const formattedResults = data.simulations.map(sim => ({
-            id: sim.simulation_id || `sim_${Math.random().toString(36).substr(2, 9)}`,
-            timestamp: sim.timestamp || new Date().toISOString(),
-            status: 'completed',
-            qber: sim.bb84_result?.qber || null,
-            key_length: sim.bb84_result?.final_key_length || null,
-            attack_type: sim.parameters?.attack_type || 'no_attack',
-            duration: `${sim.simulation_time?.toFixed(2) || '0.00'}s`,
-            raw_key_length: sim.bb84_result?.raw_key_length || null,
-            sifted_key_length: sim.bb84_result?.sifted_key_length || null,
-            attack_detected: sim.attack_detection?.attack_detected || false,
-            performance_metrics: sim.performance_metrics || null
-          }));
+          const seenIds = new Set();
+          const formattedResults = data.simulations
+            .map(sim => ({
+              id: sim.simulation_id || `sim_${Math.random().toString(36).substr(2, 9)}`,
+              timestamp: sim.timestamp || new Date().toISOString(),
+              status: 'completed',
+              qber: sim.bb84_result?.qber || null,
+              key_length: sim.bb84_result?.final_key_length || null,
+              attack_type: sim.parameters?.attack_type || 'no_attack',
+              duration: `${sim.simulation_time?.toFixed(2) || '0.00'}s`,
+              raw_key_length: sim.bb84_result?.raw_key_length || null,
+              sifted_key_length: sim.bb84_result?.sifted_key_length || null,
+              attack_detected: sim.attack_detection?.attack_detected || false,
+              performance_metrics: sim.performance_metrics || null,
+              use_advanced_reconciliation: sim.parameters?.use_advanced_reconciliation || false,
+              reconciliation_method: sim.parameters?.reconciliation_method || null,
+              use_advanced_privacy_amplification: sim.parameters?.use_advanced_privacy_amplification || false,
+              privacy_amplification_method: sim.parameters?.privacy_amplification_method || null,
+              use_decoy_states: sim.parameters?.use_decoy_states || false
+            }))
+            .filter(result => {
+              if (seenIds.has(result.id)) {
+                return false;
+              }
+              seenIds.add(result.id);
+              return true;
+            });
           setResults(formattedResults);
           
           if (formattedResults.length > 0) {
@@ -774,6 +788,35 @@ const Results = () => {
               <DetailRow>
                 <DetailLabel>Duration:</DetailLabel>
                 <DetailValue>{selectedDetail.duration}</DetailValue>
+              </DetailRow>
+              <DetailRow>
+                <DetailLabel>Advanced Reconciliation:</DetailLabel>
+                <DetailValue>{selectedDetail.use_advanced_reconciliation ? 'Enabled' : 'Disabled'}</DetailValue>
+              </DetailRow>
+              {selectedDetail.use_advanced_reconciliation && selectedDetail.reconciliation_method && (
+                <DetailRow>
+                  <DetailLabel>Reconciliation Method:</DetailLabel>
+                  <DetailValue>{selectedDetail.reconciliation_method === 'cascade' ? 'Cascade Protocol' : 
+                                selectedDetail.reconciliation_method === 'ldpc' ? 'LDPC Codes' :
+                                selectedDetail.reconciliation_method === 'hybrid' ? 'Hybrid Method' : 
+                                selectedDetail.reconciliation_method}</DetailValue>
+                </DetailRow>
+              )}
+              <DetailRow>
+                <DetailLabel>Privacy Amplification:</DetailLabel>
+                <DetailValue>{selectedDetail.use_advanced_privacy_amplification ? 'Enabled' : 'Disabled'}</DetailValue>
+              </DetailRow>
+              {selectedDetail.use_advanced_privacy_amplification && selectedDetail.privacy_amplification_method && (
+                <DetailRow>
+                  <DetailLabel>Privacy Method:</DetailLabel>
+                  <DetailValue>{selectedDetail.privacy_amplification_method === 'toeplitz' ? 'Toeplitz Hashing' : 
+                                selectedDetail.privacy_amplification_method === 'universal' ? 'Universal Hashing' : 
+                                selectedDetail.privacy_amplification_method}</DetailValue>
+                </DetailRow>
+              )}
+              <DetailRow>
+                <DetailLabel>Decoy States:</DetailLabel>
+                <DetailValue>{selectedDetail.use_decoy_states ? 'Enabled' : 'Disabled'}</DetailValue>
               </DetailRow>
             </DetailGrid>
           </DetailCard>

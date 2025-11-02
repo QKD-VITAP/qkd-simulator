@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Shield, AlertTriangle, BarChart3, Play, Download, Eye } from 'lucide-react';
-import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
+import { Shield, AlertTriangle, Play, Clock, Zap } from 'lucide-react';
+import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
 import qkdApi from '../api/qkdApi';
 
 const AttackContainer = styled.div`
@@ -10,17 +10,6 @@ const AttackContainer = styled.div`
   gap: 24px;
   min-height: 100%;
   width: 100%;
-`;
-
-const AttackGrid = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 2fr;
-  gap: 24px;
-  width: 100%;
-
-  @media (max-width: 1024px) {
-    grid-template-columns: 1fr;
-  }
 `;
 
 const AttackCard = styled.div`
@@ -49,12 +38,18 @@ const CardTitle = styled.h3`
   border-bottom: 2px solid rgba(59, 130, 246, 0.1);
 `;
 
+const AttackGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  margin-bottom: 24px;
+`;
+
 const AttackTypeCard = styled.div`
   background: ${props => props.$selected ? 'linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%)' : 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)'};
   border: 2px solid ${props => props.$selected ? '#3b82f6' : '#e2e8f0'};
   border-radius: 12px;
   padding: 20px;
-  margin-bottom: 16px;
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow: ${props => props.$selected ? '0 4px 12px rgba(59, 130, 246, 0.2)' : '0 2px 4px rgba(0,0,0,0.05)'};
@@ -178,31 +173,15 @@ const PrimaryButton = styled(Button)`
   }
 `;
 
-const SecondaryButton = styled(Button)`
-  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
-  color: #475569;
-  font-weight: 600;
-
-  &:hover:not(:disabled) {
-    background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  }
-
-  &:active:not(:disabled) {
-    transform: translateY(0px);
-  }
-`;
-
 const ResultsGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
   gap: 24px;
   margin-top: 24px;
 `;
 
 const ResultCard = styled.div`
-  background: white;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
   border-radius: 16px;
   padding: 24px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
@@ -215,6 +194,72 @@ const ResultCard = styled.div`
   }
 `;
 
+const ResultTitle = styled.h4`
+  font-size: 18px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 20px 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+`;
+
+const ResultGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+`;
+
+const ResultItem = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+`;
+
+const ResultLabel = styled.div`
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+`;
+
+const ResultValue = styled.div`
+  font-size: 28px;
+  font-weight: 700;
+  color: #1e293b;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+const RiskBadge = styled.div`
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: ${props => {
+    if (props.$risk === 'high') return 'linear-gradient(135deg, #fee2e2 0%, #fecaca 100%)';
+    if (props.$risk === 'medium') return 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)';
+    return 'linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%)';
+  }};
+  color: ${props => {
+    if (props.$risk === 'high') return '#991b1b';
+    if (props.$risk === 'medium') return '#92400e';
+    return '#065f46';
+  }};
+`;
+
+const MetricCard = styled.div`
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid ${props => props.$color || '#e2e8f0'};
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+`;
 
 const AttackAnalysis = () => {
   const [selectedAttack, setSelectedAttack] = useState('intercept_resend');
@@ -234,21 +279,18 @@ const AttackAnalysis = () => {
   const attackTypes = [
     {
       id: 'intercept_resend',
-      name: 'Intercept-Resend Attack',
-      description: 'Eve intercepts photons, measures them, and resends them to Bob. This attack can be detected through increased QBER.',
-      color: '#ef4444'
+      name: 'Intercept-Resend',
+      description: 'Eve intercepts and resends photons'
     },
     {
       id: 'photon_number_splitting',
-      name: 'Photon Number Splitting Attack',
-      description: 'Eve exploits multi-photon pulses to gain partial information about the key without detection.',
-      color: '#f59e0b'
+      name: 'PNS Attack',
+      description: 'Exploit multi-photon pulses'
     },
     {
       id: 'detector_blinding',
-      name: 'Detector Blinding Attack',
-      description: 'Eve sends bright light to blind detectors, potentially gaining information about the key.',
-      color: '#8b5cf6'
+      name: 'Detector Blinding',
+      description: 'Blind detectors with bright light'
     }
   ];
 
@@ -274,7 +316,17 @@ const AttackAnalysis = () => {
       
       if (response && response.simulation_id) {
         const qber = response.sifted_qber || response.qber || 0.0;
-        const detectionRate = response.attack_detected ? (response.attack_detection?.confidence || 0.9) : 0.1;
+        
+        let detectionRate = 0.05;
+        if (qber > 0.15) {
+          detectionRate = 0.85 + (qber - 0.15) * 0.5;
+        } else if (qber > 0.10) {
+          detectionRate = 0.70 + (qber - 0.10) * 3.0;
+        } else if (qber > 0.05) {
+          detectionRate = 0.30 + (qber - 0.05) * 8.0;
+        }
+        detectionRate = Math.min(0.95, Math.max(0.05, detectionRate));
+        
         const keyCompromise = qber * 0.5;
         const attackStrength = attackParameters.strength * 100;
         
@@ -326,29 +378,84 @@ const AttackAnalysis = () => {
     }));
   };
 
+  const getRiskLevel = (qber) => {
+    if (qber > 0.15) return 'high';
+    if (qber > 0.05) return 'medium';
+    return 'low';
+  };
+
+  const getRiskText = (qber) => {
+    if (qber > 0.15) return 'High Risk';
+    if (qber > 0.05) return 'Medium Risk - Moderate Risk';
+    return 'Low Risk';
+  };
+
+  const calculateBreakTime = (qber, attackType, keyLength) => {
+    const baseYears = 1000;
+    
+    let qberReduction = 1;
+    if (qber > 0.20) {
+      qberReduction = 0.25;
+    } else if (qber > 0.15) {
+      qberReduction = 0.35;
+    } else if (qber > 0.10) {
+      qberReduction = 0.50;
+    } else if (qber > 0.05) {
+      qberReduction = 0.70;
+    } else if (qber > 0.01) {
+      qberReduction = 0.90;
+    } else {
+      qberReduction = 1.0;
+    }
+    
+    let attackReduction = 1;
+    switch(attackType) {
+      case 'intercept_resend':
+        attackReduction = 0.60;
+        break;
+      case 'photon_number_splitting':
+        attackReduction = 0.75;
+        break;
+      case 'detector_blinding':
+        attackReduction = 0.65;
+        break;
+      default:
+        attackReduction = 1.0;
+    }
+    
+    const years = baseYears * qberReduction * attackReduction;
+    
+    if (years < 1) return '0';
+    if (years < 1000) return Math.round(years).toString();
+    if (years < 1000000) return Math.round(years / 1000).toString() + 'K';
+    return Math.round(years / 1000000).toString() + 'M';
+  };
+
   return (
     <AttackContainer>
-      <AttackGrid>
-        <AttackCard>
-          <CardTitle>
-            <Shield size={20} />
-            Attack Configuration
-          </CardTitle>
-          
+      <AttackCard>
+        <CardTitle>
+          <Shield size={20} />
+          Attack Configuration
+        </CardTitle>
+        
+        <AttackGrid>
           {attackTypes.map(attack => (
-                            <AttackTypeCard
-                  key={attack.id}
-                  $selected={selectedAttack === attack.id}
-                  onClick={() => setSelectedAttack(attack.id)}
-                >
+            <AttackTypeCard
+              key={attack.id}
+              $selected={selectedAttack === attack.id}
+              onClick={() => setSelectedAttack(attack.id)}
+            >
               <AttackTypeHeader>
                 <AttackTypeName>{attack.name}</AttackTypeName>
-                <AlertTriangle size={20} color={attack.color} />
+                <AlertTriangle size={20} color="#ef4444" />
               </AttackTypeHeader>
               <AttackTypeDescription>{attack.description}</AttackTypeDescription>
             </AttackTypeCard>
           ))}
+        </AttackGrid>
 
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px', marginBottom: '24px' }}>
           <AttackParameter>
             <ParameterLabel>Attack Strength</ParameterLabel>
             <ParameterInput
@@ -362,13 +469,13 @@ const AttackAnalysis = () => {
                 strength: parseFloat(e.target.value)
               }))}
             />
-            <div style={{ textAlign: 'center', color: '#64748b', fontSize: '14px' }}>
-              {attackParameters.strength}
+            <div style={{ textAlign: 'center', color: '#64748b', fontSize: '14px', fontWeight: 600 }}>
+              {(attackParameters.strength * 100).toFixed(0)}%
             </div>
           </AttackParameter>
 
           <AttackParameter>
-            <ParameterLabel>Duration (qubits)</ParameterLabel>
+            <ParameterLabel>Duration</ParameterLabel>
             <ParameterInput
               type="number"
               value={attackParameters.duration}
@@ -396,45 +503,100 @@ const AttackAnalysis = () => {
               step="100"
             />
           </AttackParameter>
+        </div>
 
-          <div style={{ marginTop: '24px' }}>
-            <PrimaryButton onClick={runAttackSimulation}>
-              <Play size={18} />
-              Run Attack Simulation
-            </PrimaryButton>
-          </div>
-        </AttackCard>
+        <div style={{ marginTop: '24px' }}>
+          <PrimaryButton onClick={runAttackSimulation}>
+            <Play size={18} />
+            Run Attack Simulation
+          </PrimaryButton>
+        </div>
+      </AttackCard>
 
-        <AttackCard>
-          <CardTitle>
-            <BarChart3 size={20} />
-            Attack Analysis Results
-          </CardTitle>
-          
-          {simulationResults ? (
-            <>
-              <div style={{ 
-                background: '#fef3c7', 
-                padding: '20px', 
-                borderRadius: '12px',
-                marginBottom: '24px'
-              }}>
-                <h4 style={{ margin: '0 0 12px 0', color: '#92400e' }}>
-                  Simulation Results - {attackTypes.find(a => a.id === simulationResults.attack_type)?.name}
-                </h4>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
-                  <div>
-                    <strong>QBER:</strong> {(simulationResults.qber * 100).toFixed(2)}%
-                  </div>
-                  <div>
-                    <strong>Detection Rate:</strong> {(simulationResults.detection_rate * 100).toFixed(1)}%
-                  </div>
-                  <div>
-                    <strong>Key Compromise:</strong> {(simulationResults.key_compromise * 100).toFixed(1)}%
-                  </div>
+      {simulationResults && (
+        <>
+          <AttackCard>
+            <CardTitle>
+              <AlertTriangle size={20} />
+              Attack Simulation Results
+            </CardTitle>
+            <ResultsGrid>
+              <ResultCard>
+                <ResultTitle>
+                  <Clock size={18} />
+                  Time to Break Encryption
+                </ResultTitle>
+                <ResultValue>
+                  {calculateBreakTime(simulationResults.qber, simulationResults.attack_type, simulationResults.final_key_length || attackParameters.target_qubits)} Years
+                </ResultValue>
+                <div style={{ marginTop: '12px' }}>
+                  <RiskBadge $risk={getRiskLevel(simulationResults.qber)}>
+                    <AlertTriangle size={14} />
+                    {getRiskText(simulationResults.qber)}
+                  </RiskBadge>
                 </div>
-              </div>
+              </ResultCard>
 
+              <ResultCard>
+                <ResultTitle>
+                  <Zap size={18} />
+                  Security Vulnerability
+                </ResultTitle>
+                <ResultValue>
+                  {getRiskLevel(simulationResults.qber) === 'high' ? 'High' : 
+                   getRiskLevel(simulationResults.qber) === 'medium' ? 'Medium' : 'Low'}
+                </ResultValue>
+                <div style={{ marginTop: '12px' }}>
+                  <ResultLabel>Detection Rate</ResultLabel>
+                  <ResultValue style={{ fontSize: '24px' }}>
+                    {(simulationResults.detection_rate * 100).toFixed(1)}%
+                  </ResultValue>
+                </div>
+              </ResultCard>
+
+              <ResultCard>
+                <ResultTitle>Key Metrics</ResultTitle>
+                <ResultGrid>
+                  <ResultItem>
+                    <ResultLabel>Qubits Required</ResultLabel>
+                    <ResultValue style={{ fontSize: '24px' }}>
+                      {attackParameters.target_qubits}
+                    </ResultValue>
+                  </ResultItem>
+                  <ResultItem>
+                    <ResultLabel>Error Rate</ResultLabel>
+                    <ResultValue style={{ fontSize: '24px' }}>
+                      {(simulationResults.qber * 100).toFixed(2)}%
+                    </ResultValue>
+                  </ResultItem>
+                  <ResultItem>
+                    <ResultLabel>Success Probability</ResultLabel>
+                    <ResultValue style={{ fontSize: '24px' }}>
+                      {((1 - simulationResults.qber) * 100).toFixed(1)}%
+                    </ResultValue>
+                  </ResultItem>
+                  <ResultItem>
+                    <ResultLabel>Key Compromise</ResultLabel>
+                    <ResultValue style={{ fontSize: '24px' }}>
+                      {(simulationResults.key_compromise * 100).toFixed(1)}%
+                    </ResultValue>
+                  </ResultItem>
+                </ResultGrid>
+              </ResultCard>
+
+              <ResultCard>
+                <ResultTitle>Algorithm</ResultTitle>
+                <ResultValue style={{ fontSize: '20px' }}>
+                  QKD-BB84
+                </ResultValue>
+                <ResultLabel style={{ marginTop: '12px' }}>Quantum-Secure Protocol</ResultLabel>
+              </ResultCard>
+            </ResultsGrid>
+          </AttackCard>
+
+          {simulationHistory.length > 0 && (
+            <AttackCard>
+              <CardTitle>Attack Visualization</CardTitle>
               <ResponsiveContainer width="100%" height={300}>
                 <LineChart data={getChartData()}>
                   <CartesianGrid strokeDasharray="3 3" />
@@ -445,48 +607,25 @@ const AttackAnalysis = () => {
                   <Line type="monotone" dataKey="compromise" stroke="#ef4444" strokeWidth={3} name="Key Compromise (%)" />
                 </LineChart>
               </ResponsiveContainer>
-            </>
-          ) : (
-            <div style={{ 
-              textAlign: 'center', 
-              padding: '60px 20px',
-              color: '#64748b'
-            }}>
-              <Shield size={48} style={{ marginBottom: '16px', opacity: 0.5 }} />
-              <p>Select an attack type and run simulation to see results</p>
-            </div>
+              <p style={{ textAlign: 'center', color: '#64748b', fontSize: '14px', marginTop: '16px' }}>
+                This visualization represents quantum computing's impact on BB84 protocol security.
+              </p>
+            </AttackCard>
           )}
-        </AttackCard>
-      </AttackGrid>
+        </>
+      )}
 
-      {simulationResults && (
-        <ResultsGrid>
-          <ResultCard>
-            <CardTitle>Attack Detection Status</CardTitle>
-            <ResponsiveContainer width="100%" height={200}>
-              <PieChart>
-                <Pie
-                  data={[
-                    { name: 'Detected', value: simulationResults.detection_rate * 100, color: '#10b981' },
-                    { name: 'Undetected', value: (1 - simulationResults.detection_rate) * 100, color: '#ef4444' }
-                  ]}
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={80}
-                  dataKey="value"
-                >
-                  {[
-                    { name: 'Detected', value: simulationResults.detection_rate * 100, color: '#10b981' },
-                    { name: 'Undetected', value: (1 - simulationResults.detection_rate) * 100, color: '#ef4444' }
-                  ].map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
-          </ResultCard>
-        </ResultsGrid>
+      {!simulationResults && (
+        <AttackCard>
+          <div style={{ 
+            textAlign: 'center', 
+            padding: '60px 20px',
+            color: '#64748b'
+          }}>
+            <Shield size={48} style={{ marginBottom: '16px', opacity: 0.5 }} />
+            <p>Select an attack type and run simulation to see results</p>
+          </div>
+        </AttackCard>
       )}
     </AttackContainer>
   );

@@ -2,18 +2,14 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { 
   Send, 
-  Lock, 
   MessageSquare, 
   Key, 
   Shield, 
   RefreshCw, 
-  Eye, 
-  Clock,
   CheckCircle,
   AlertTriangle,
   BarChart3,
-  Users,
-  Zap
+  Users
 } from 'lucide-react';
 import qkdApi from '../api/qkdApi';
 
@@ -366,33 +362,19 @@ const SecureMessaging = () => {
   });
   const [sendingMessage, setSendingMessage] = useState(false);
   const [messagingStats, setMessagingStats] = useState(null);
-  const [keyStats, setKeyStats] = useState(null);
   const [sharedKeyForm, setSharedKeyForm] = useState({
     user1Id: 'alice',
     user2Id: 'bob',
     keyLength: 256
   });
   const [sharedKeyLoading, setSharedKeyLoading] = useState(false);
-  const [sharedKeys, setSharedKeys] = useState([]);
   const [receivedMessages, setReceivedMessages] = useState([]);
   const [userKeys, setUserKeys] = useState({});
 
-  const switchUser = async (newUser) => {
+  const switchUser = (newUser) => {
     setCurrentUser(newUser);
-    setMessageForm(prev => ({ ...prev, receiverId: '' }));
-    if (!userKeys[newUser]) {
-      try {
-        const response = await qkdApi.generateQuantumKey(newUser, 256);
-        if (response.success) {
-          setUserKeys(prev => ({ ...prev, [newUser]: response }));
-          setQuantumKey(response);
-        }
-      } catch (error) {}
-    } else {
-      setQuantumKey(userKeys[newUser]);
-    }
-    
-    fetchUserMessages(newUser);
+    const otherUser = newUser === 'alice' ? 'bob' : 'alice';
+    setMessageForm(prev => ({ ...prev, receiverId: otherUser }));
   };
 
   const generateQuantumKey = async () => {
@@ -404,7 +386,6 @@ const SecureMessaging = () => {
         setQuantumKey(response);
         setUserKeys(prev => ({ ...prev, [currentUser]: response }));
         alert('✅ Quantum key generated successfully!');
-        fetchKeyStats();
       } else {
         alert('❌ Failed to generate quantum key');
       }
@@ -424,7 +405,6 @@ const SecureMessaging = () => {
         setQuantumKey(response);
         setUserKeys(prev => ({ ...prev, [currentUser]: response }));
         alert('✅ Quantum key refreshed successfully!');
-        fetchKeyStats();
       } else {
         alert('❌ Failed to refresh quantum key');
       }
@@ -466,24 +446,11 @@ const SecureMessaging = () => {
       });
       
       if (response.success) {
-        const newSharedKey = {
-          id: `${sharedKeyForm.user1Id}_${sharedKeyForm.user2Id}`,
-          user1_id: sharedKeyForm.user1Id,
-          user2_id: sharedKeyForm.user2Id,
-          key_length: response.key_length,
-          expires_at: response.expires_at,
-          security_level: response.security_metrics.security_level,
-          message: response.message
-        };
-        setSharedKeys(prev => [newSharedKey, ...prev]);
-        
-        setSharedKeyForm({ user1Id: '', user2Id: '', keyLength: 256 });
-        
         alert('✅ Shared quantum key generated successfully!');
-        fetchKeyStats();
         if (sharedKeyForm.user1Id === 'alice' && sharedKeyForm.user2Id === 'bob') {
           setTimeout(() => demonstrateSecureMessaging(sharedKeyForm.user1Id, sharedKeyForm.user2Id), 1000);
         }
+        setSharedKeyForm({ user1Id: 'alice', user2Id: 'bob', keyLength: 256 });
       } else {
         alert('❌ Failed to generate shared quantum key');
       }
@@ -567,7 +534,8 @@ const SecureMessaging = () => {
         };
         setMessages(prev => [newMessage, ...prev]);
         
-        setMessageForm(prev => ({ ...prev, receiverId: '', message: '' }));
+        const otherUser = currentUser === 'alice' ? 'bob' : 'alice';
+        setMessageForm(prev => ({ ...prev, receiverId: otherUser, message: '' }));
         
         alert('✅ Secure message sent successfully!');
         fetchMessagingStats();
@@ -587,13 +555,6 @@ const SecureMessaging = () => {
     try {
       const stats = await qkdApi.getMessagingStatistics();
       setMessagingStats(stats);
-    } catch (error) {}
-  };
-
-  const fetchKeyStats = async () => {
-    try {
-      const stats = await qkdApi.getQuantumKeyStatistics();
-      setKeyStats(stats);
     } catch (error) {}
   };
 
@@ -636,7 +597,6 @@ const SecureMessaging = () => {
 
     checkUserKey();
     fetchMessagingStats();
-    fetchKeyStats();
     fetchUserMessages(currentUser);
   }, [currentUser]);
 
@@ -658,7 +618,7 @@ const SecureMessaging = () => {
              👤 Switch User Identity
            </div>
            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center' }}>
-             {['alice', 'bob', 'john', 'jane'].map(user => (
+             {['alice', 'bob'].map(user => (
                <button
                  key={user}
                  onClick={() => switchUser(user)}
@@ -720,12 +680,6 @@ const SecureMessaging = () => {
                   <KeyInfoLabel>QBER</KeyInfoLabel>
                   <KeyInfoValue>{(quantumKey.security_metrics?.qber * 100).toFixed(2)}%</KeyInfoValue>
                 </KeyInfoItem>
-                <KeyInfoItem>
-                  <KeyInfoLabel>Expires In</KeyInfoLabel>
-                  <KeyInfoValue>
-                    {Math.max(0, Math.floor((quantumKey.expires_at - Date.now() / 1000) / 60))} min
-                  </KeyInfoValue>
-                </KeyInfoItem>
               </KeyInfo>
             )}
 
@@ -747,40 +701,6 @@ const SecureMessaging = () => {
             </div>
           </KeySection>
 
-          <div style={{ marginBottom: '20px' }}>
-            <FormLabel>Key Length (bits)</FormLabel>
-            <FormSelect
-              value={messageForm.keyLength}
-              onChange={(e) => setMessageForm(prev => ({ ...prev, keyLength: parseInt(e.target.value) }))}
-            >
-              <option value={128}>128 bits</option>
-              <option value={192}>192 bits</option>
-              <option value={256}>256 bits</option>
-            </FormSelect>
-          </div>
-
-                     {keyStats && (
-             <div>
-               <CardTitle>
-                 <BarChart3 size={16} />
-                 Key Statistics
-               </CardTitle>
-               <StatsGrid>
-                 <StatCard>
-                   <StatValue>{keyStats.total_users}</StatValue>
-                   <StatLabel>Total Users</StatLabel>
-                 </StatCard>
-                 <StatCard>
-                   <StatValue>{keyStats.active_keys}</StatValue>
-                   <StatLabel>Active Keys</StatLabel>
-                 </StatCard>
-                 <StatCard>
-                   <StatValue>{keyStats.expired_keys}</StatValue>
-                   <StatLabel>Expired Keys</StatLabel>
-                 </StatCard>
-               </StatsGrid>
-             </div>
-           )}
 
            <div style={{ marginTop: '20px' }}>
              <CardTitle>
@@ -794,41 +714,9 @@ const SecureMessaging = () => {
                padding: '20px' 
              }}>
                <p style={{ marginBottom: '16px', color: '#0c4a6e', fontSize: '14px' }}>
-                 <strong>🔐 Real QKD Simulation:</strong> Generate shared quantum keys between two users. 
+                 <strong>🔐 Real QKD Simulation:</strong> Generate a shared quantum key between Alice and Bob.
                  In real quantum systems, both parties share the same key for secure communication.
                </p>
-               
-               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
-                 <FormGroup>
-                   <FormLabel>User 1 ID</FormLabel>
-                   <FormInput
-                     placeholder="e.g., alice"
-                     value={sharedKeyForm.user1Id}
-                     onChange={(e) => setSharedKeyForm(prev => ({ ...prev, user1Id: e.target.value }))}
-                   />
-                 </FormGroup>
-                 
-                 <FormGroup>
-                   <FormLabel>User 2 ID</FormLabel>
-                   <FormInput
-                     placeholder="e.g., bob"
-                     value={sharedKeyForm.user2Id}
-                     onChange={(e) => setSharedKeyForm(prev => ({ ...prev, user2Id: e.target.value }))}
-                   />
-                 </FormGroup>
-               </div>
-               
-               <div style={{ marginBottom: '16px' }}>
-                 <FormLabel>Shared Key Length (bits)</FormLabel>
-                 <FormSelect
-                   value={sharedKeyForm.keyLength}
-                   onChange={(e) => setSharedKeyForm(prev => ({ ...prev, keyLength: parseInt(e.target.value) }))}
-                 >
-                   <option value={128}>128 bits</option>
-                   <option value={192}>192 bits</option>
-                   <option value={256}>256 bits</option>
-                 </FormSelect>
-               </div>
                
                <PrimaryButton 
                  onClick={generateSharedQuantumKey} 
@@ -840,62 +728,6 @@ const SecureMessaging = () => {
              </div>
            </div>
 
-           {sharedKeys.length > 0 && (
-             <div style={{ marginTop: '20px' }}>
-               <CardTitle>
-                 <Users size={16} />
-                 Active Shared Keys
-               </CardTitle>
-               <div style={{ 
-                 background: '#f8fafc', 
-                 border: '1px solid #e2e8f0', 
-                 borderRadius: '12px', 
-                 padding: '20px' 
-               }}>
-                 {sharedKeys.map(sharedKey => (
-                   <div key={sharedKey.id} style={{
-                     background: 'white',
-                     padding: '16px',
-                     borderRadius: '8px',
-                     border: '1px solid #e2e8f0',
-                     marginBottom: '12px'
-                   }}>
-                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                       <div style={{ fontWeight: '600', color: '#1e293b' }}>
-                         {sharedKey.user1_id} ↔ {sharedKey.user2_id}
-                       </div>
-                       <div style={{
-                         padding: '4px 12px',
-                         borderRadius: '12px',
-                         fontSize: '12px',
-                         fontWeight: '500',
-                         background: '#dcfce7',
-                         color: '#166534'
-                       }}>
-                         Active
-                       </div>
-                     </div>
-                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', fontSize: '14px' }}>
-                       <div>
-                         <div style={{ color: '#64748b', fontSize: '12px' }}>Key Length</div>
-                         <div style={{ fontWeight: '600' }}>{sharedKey.key_length} bits</div>
-                       </div>
-                       <div>
-                         <div style={{ color: '#64748b', fontSize: '12px' }}>Security Level</div>
-                         <div style={{ fontWeight: '600' }}>{(sharedKey.security_level * 100).toFixed(1)}%</div>
-                       </div>
-                       <div>
-                         <div style={{ color: '#64748b', fontSize: '12px' }}>Expires In</div>
-                         <div style={{ fontWeight: '600' }}>
-                           {Math.max(0, Math.floor((sharedKey.expires_at - Date.now() / 1000) / 60))} min
-                         </div>
-                       </div>
-                     </div>
-                   </div>
-                 ))}
-               </div>
-             </div>
-           )}
         </MessagingCard>
 
         <MessagingCard>
@@ -913,11 +745,15 @@ const SecureMessaging = () => {
             <MessageForm>
               <FormGroup>
                 <FormLabel>Receiver ID</FormLabel>
-                <FormInput
-                  placeholder="Enter receiver's user ID"
+                <FormSelect
                   value={messageForm.receiverId}
                   onChange={(e) => setMessageForm(prev => ({ ...prev, receiverId: e.target.value }))}
-                />
+                >
+                  <option value="">Select receiver...</option>
+                  {['alice', 'bob'].filter(user => user !== currentUser).map(user => (
+                    <option key={user} value={user}>{user.charAt(0).toUpperCase() + user.slice(1)}</option>
+                  ))}
+                </FormSelect>
               </FormGroup>
 
               <FormGroup>
@@ -965,49 +801,6 @@ const SecureMessaging = () => {
              </MessageForm>
            </MessageSection>
 
-            <div style={{ 
-              background: '#fef3c7', 
-              border: '1px solid #f59e0b', 
-              borderRadius: '12px', 
-              padding: '20px',
-              marginBottom: '20px'
-            }}>
-              <CardTitle>
-                <Zap size={16} />
-                🎯 Interactive Quantum Messaging Experience
-              </CardTitle>
-              <div style={{ fontSize: '14px', color: '#92400e', lineHeight: '1.6' }}>
-                <p><strong>🚀 Try This Real-Time Workflow:</strong></p>
-                <p><strong>1.</strong> Switch to "Alice" using the user switcher above</p>
-                <p><strong>2.</strong> Generate a shared quantum key with "Bob"</p>
-                <p><strong>3.</strong> Send a message from Alice to Bob</p>
-                <p><strong>4.</strong> Switch to "Bob" and decrypt the message!</p>
-                <p><strong>💡 This simulates real QKD where both parties share the same quantum key!</strong></p>
-              </div>
-              
-              <div style={{ marginTop: '16px' }}>
-                <SecondaryButton 
-                  onClick={() => {
-                    setSharedKeyForm({ user1Id: 'alice', user2Id: 'bob', keyLength: 256 });
-                    setTimeout(() => generateSharedQuantumKey(), 100);
-                  }}
-                  style={{ marginRight: '12px' }}
-                >
-                  <Zap size={16} />
-                  Generate Alice ↔ Bob Key
-                </SecondaryButton>
-                
-                <SecondaryButton 
-                  onClick={() => {
-                    setSharedKeyForm({ user1Id: 'john', user2Id: 'jane', keyLength: 256 });
-                    setTimeout(() => generateSharedQuantumKey(), 100);
-                  }}
-                >
-                  <Zap size={16} />
-                  Generate John ↔ Jane Key
-                </SecondaryButton>
-              </div>
-            </div>
 
            <div style={{ marginBottom: '20px' }}>
              <CardTitle>
@@ -1037,8 +830,8 @@ const SecureMessaging = () => {
                    transition: 'all 0.2s ease'
                  }}
                  onClick={() => receiveMessage(msg.message_id)}
-                 onMouseEnter={(e) => e.target.style.background = '#f8fafc'}
-                 onMouseLeave={(e) => e.target.style.background = 'white'}
+                 onMouseEnter={(e) => e.currentTarget.style.background = '#f8fafc'}
+                 onMouseLeave={(e) => e.currentTarget.style.background = 'white'}
                  >
                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                      <div style={{ fontWeight: '600', color: '#1e293b' }}>

@@ -1,13 +1,14 @@
 
 import base64
 import secrets
+import json
 import numpy as np
 from typing import List, Dict, Tuple, Optional
 from dataclasses import dataclass
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad, unpad
 from Crypto.Protocol.KDF import PBKDF2
-from Crypto.Hash import SHA256
+from Crypto.Hash import SHA256, SHA512
 
 
 @dataclass

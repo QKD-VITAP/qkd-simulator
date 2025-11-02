@@ -694,14 +694,11 @@ class QKDSimulator:
             user_id: User identifier
             
         Returns:
-            Key data if available and not expired, None otherwise
+            Key data if available, None otherwise
         """
         if user_id in self.quantum_keys:
             key_data = self.quantum_keys[user_id]
-            if time.time() < key_data['expires_at']:
-                return key_data
-            else:
-                del self.quantum_keys[user_id]
+            return key_data
         return None
     
     def refresh_user_quantum_key(self, user_id: str, key_length: int = 256) -> Dict:
@@ -722,17 +719,11 @@ class QKDSimulator:
     
     def get_quantum_key_statistics(self) -> Dict:
         """Get statistics about quantum key generation"""
-        current_time = time.time()
-        active_keys = sum(1 for key_data in self.quantum_keys.values() 
-                         if current_time < key_data['expires_at'])
-        expired_keys = sum(1 for key_data in self.quantum_keys.values() 
-                          if current_time >= key_data['expires_at'])
-        
         return {
             'total_users': len(self.quantum_keys),
-            'active_keys': active_keys,
-            'expired_keys': expired_keys,
-            'key_expiry_time': self.key_expiry_time
+            'active_keys': len(self.quantum_keys),
+            'expired_keys': 0,
+            'key_expiry_time': 0
         }
     
     def generate_shared_quantum_key(self, user1_id: str, user2_id: str, key_length: int = 256) -> Dict:
