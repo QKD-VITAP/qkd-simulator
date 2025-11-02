@@ -393,8 +393,11 @@ async def simulate_attack_scenario(request: AttackSimulationRequest):
             "attack_type": request.attack_type,
             "attack_detected": result.attack_detection["attack_detected"] if result.attack_detection else False,
             "qber": result.bb84_result.qber,
+            "sifted_qber": result.bb84_result.sifted_qber,
             "final_key_length": result.bb84_result.final_key_length,
-            "attack_details": result.attack_result
+            "attack_details": result.attack_result,
+            "attack_detection": result.attack_detection,
+            "bb84_result": result.bb84_result.to_dict() if hasattr(result.bb84_result, 'to_dict') else None
         }
         
     except Exception as e:

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Shield, AlertTriangle, BarChart3, Play, Download, Eye } from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from 'recharts';
+import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
 import qkdApi from '../api/qkdApi';
 
 const AttackContainer = styled.div`
@@ -24,35 +24,46 @@ const AttackGrid = styled.div`
 `;
 
 const AttackCard = styled.div`
-  background: white;
+  background: linear-gradient(to bottom, #ffffff, #f8fafc);
   border-radius: 16px;
   padding: 24px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-  border: 1px solid #e2e8f0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(59, 130, 246, 0.05);
+  border: 1px solid rgba(59, 130, 246, 0.1);
+  transition: all 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 4px 16px rgba(59, 130, 246, 0.15), 0 0 0 1px rgba(59, 130, 246, 0.2);
+    transform: translateY(-2px);
+  }
 `;
 
 const CardTitle = styled.h3`
-  font-size: 18px;
-  font-weight: 600;
+  font-size: 20px;
+  font-weight: 700;
   color: #1e293b;
   margin: 0 0 24px 0;
   display: flex;
   align-items: center;
   gap: 12px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid rgba(59, 130, 246, 0.1);
 `;
 
 const AttackTypeCard = styled.div`
-  background: ${props => props.$selected ? '#dbeafe' : '#f8fafc'};
+  background: ${props => props.$selected ? 'linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%)' : 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)'};
   border: 2px solid ${props => props.$selected ? '#3b82f6' : '#e2e8f0'};
   border-radius: 12px;
   padding: 20px;
   margin-bottom: 16px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
+  box-shadow: ${props => props.$selected ? '0 4px 12px rgba(59, 130, 246, 0.2)' : '0 2px 4px rgba(0,0,0,0.05)'};
 
   &:hover {
     border-color: #3b82f6;
-    background: #dbeafe;
+    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
   }
 `;
 
@@ -78,7 +89,7 @@ const AttackTypeDescription = styled.p`
 `;
 
 const AttackParameter = styled.div`
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 `;
 
 const ParameterLabel = styled.label`
@@ -92,15 +103,22 @@ const ParameterLabel = styled.label`
 const ParameterInput = styled.input`
   width: 100%;
   padding: 12px 16px;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
   font-size: 14px;
-  transition: border-color 0.2s ease;
+  background: #ffffff;
+  transition: all 0.2s ease;
+  font-weight: 500;
+
+  &:hover {
+    border-color: #93c5fd;
+  }
 
   &:focus {
     outline: none;
     border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+    background: #fefefe;
   }
 `;
 
@@ -123,21 +141,56 @@ const Button = styled.button`
 `;
 
 const PrimaryButton = styled(Button)`
-  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
+  border: none;
+  position: relative;
+  overflow: hidden;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+  }
 
   &:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+
+    &::before {
+      width: 300px;
+      height: 300px;
+    }
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0px);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
   }
 `;
 
 const SecondaryButton = styled(Button)`
-  background: #f1f5f9;
+  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
   color: #475569;
+  font-weight: 600;
 
   &:hover:not(:disabled) {
-    background: #e2e8f0;
+    background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0px);
   }
 `;
 
@@ -154,6 +207,12 @@ const ResultCard = styled.div`
   padding: 24px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
   border: 1px solid #e2e8f0;
+  transition: all 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+  }
 `;
 
 
@@ -165,6 +224,12 @@ const AttackAnalysis = () => {
     target_qubits: 500
   });
   const [simulationResults, setSimulationResults] = useState(null);
+  const [simulationHistory, setSimulationHistory] = useState([]);
+  const [simulationStatus, setSimulationStatus] = useState({
+    status: 'idle',
+    progress: 0,
+    message: 'Ready to run simulation'
+  });
 
   const attackTypes = [
     {
@@ -189,67 +254,75 @@ const AttackAnalysis = () => {
 
   const runAttackSimulation = async () => {
     try {
+      setSimulationStatus({
+        status: 'running',
+        progress: 0,
+        message: 'Running attack simulation...'
+      });
+
       const attackRequest = {
         num_qubits: attackParameters.target_qubits,
         channel_length: 10.0,
         channel_attenuation: 0.1,
         attack_type: selectedAttack,
         attack_parameters: {
-          strength: attackParameters.strength,
-          duration: attackParameters.duration,
-          target_qubits: attackParameters.target_qubits
+          strength: attackParameters.strength
         }
       };
 
       const response = await qkdApi.simulateAttack(attackRequest);
       
       if (response && response.simulation_id) {
-        const baseQBER = response.qber || 0.02;
-        const detectionRate = response.attack_detected ? 0.85 + Math.random() * 0.1 : 0.15 + Math.random() * 0.1;
-        const keyCompromise = response.attack_detected ? 0.1 + Math.random() * 0.1 : 0.02 + Math.random() * 0.03;
+        const qber = response.sifted_qber || response.qber || 0.0;
+        const detectionRate = response.attack_detected ? (response.attack_detection?.confidence || 0.9) : 0.1;
+        const keyCompromise = qber * 0.5;
+        const attackStrength = attackParameters.strength * 100;
         
-        setSimulationResults({
+        const newResult = {
           attack_type: selectedAttack,
-          qber: baseQBER,
-          detection_rate: Math.min(0.95, Math.max(0.05, detectionRate)),
-          key_compromise: Math.min(0.3, Math.max(0.01, keyCompromise)),
+          qber: qber,
+          detection_rate: detectionRate,
+          key_compromise: keyCompromise,
           timestamp: new Date().toISOString(),
           simulation_id: response.simulation_id,
-          final_key_length: response.final_key_length
+          final_key_length: response.final_key_length,
+          strength: attackStrength
+        };
+        
+        setSimulationResults(newResult);
+        setSimulationHistory(prev => [...prev, newResult]);
+
+        setSimulationStatus({
+          status: 'completed',
+          progress: 100,
+          message: 'Attack simulation completed'
         });
       } else {
+        setSimulationStatus({
+          status: 'failed',
+          progress: 0,
+          message: 'Attack simulation failed'
+        });
         alert('Attack simulation failed. Please try again.');
       }
     } catch (err) {
+      setSimulationStatus({
+        status: 'failed',
+        progress: 0,
+        message: 'Unable to run attack simulation'
+      });
       alert('Unable to run attack simulation');
     }
   };
 
   const getChartData = () => {
-    if (!simulationResults) return [];
+    if (simulationHistory.length === 0) return [];
     
-    const baseQBER = simulationResults.qber;
-    const dataPoints = [];
-    
-    for (let i = 0; i < 7; i++) {
-      const attackStrength = (i + 1) / 7;
-      const qberVariation = baseQBER + attackStrength * 0.02;
-      const detectionRate = simulationResults.detection_rate + (attackStrength - 0.5) * 0.1;
-      const keyCompromise = simulationResults.key_compromise + attackStrength * 0.05;
-      
-      dataPoints.push({
-        strength: (attackStrength * 100).toFixed(0),
-        qber: Math.max(0, Math.min(0.15, qberVariation)),
-        detection: Math.max(0, Math.min(1, detectionRate)),
-        compromise: Math.max(0, Math.min(0.5, keyCompromise))
-      });
-    }
-    
-    return dataPoints.map((point) => ({
-      strength: point.strength,
-      qber: (point.qber * 100).toFixed(1),
-      detection: (point.detection * 100).toFixed(1),
-      compromise: (point.compromise * 100).toFixed(1)
+    return simulationHistory.map(result => ({
+      strength: parseFloat(result.strength.toFixed(0)),
+      qber: parseFloat((result.qber * 100).toFixed(2)),
+      detection: parseFloat((result.detection_rate * 100).toFixed(1)),
+      compromise: parseFloat((result.key_compromise * 100).toFixed(1))
     }));
   };
 
@@ -389,20 +462,7 @@ const AttackAnalysis = () => {
       {simulationResults && (
         <ResultsGrid>
           <ResultCard>
-            <CardTitle>Attack Detection Analysis</CardTitle>
-            <ResponsiveContainer width="100%" height={200}>
-              <BarChart data={getChartData()}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="strength" label={{ value: 'Attack Strength (%)', position: 'insideBottom', offset: -5 }} />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="detection" fill="#10b981" name="Detection Rate (%)" />
-              </BarChart>
-            </ResponsiveContainer>
-          </ResultCard>
-
-          <ResultCard>
-            <CardTitle>Attack Detection</CardTitle>
+            <CardTitle>Attack Detection Status</CardTitle>
             <ResponsiveContainer width="100%" height={200}>
               <PieChart>
                 <Pie
